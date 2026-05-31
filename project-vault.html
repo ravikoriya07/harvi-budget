@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1c1917">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Build-Budget">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<title>Build-Budget — Project Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Fraunces',Georgia,serif;background:#faf7f2;color:#1c1917;min-height:100vh}
+.sans{font-family:'Manrope',sans-serif}
+.mono{font-family:'Consolas','JetBrains Mono',monospace}
+.topbar{background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid #e7e5e4;position:sticky;top:0;z-index:20}
+.topbar-inner{max-width:1200px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.container{max-width:1200px;margin:0 auto;padding:28px 24px 80px}
+
+/* Category sidebar */
+.layout{display:grid;grid-template-columns:260px 1fr;gap:24px;align-items:start}
+@media(max-width:800px){.layout{grid-template-columns:1fr}}
+.sidebar{background:white;border:1px solid #e7e5e4;border-radius:16px;overflow:hidden;position:sticky;top:76px}
+.sidebar-hd{padding:14px 16px;border-bottom:1px solid #f5f5f4}
+.cat-btn{width:100%;padding:10px 14px;background:transparent;border:none;border-radius:0;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #f5f5f4;transition:background .15s}
+.cat-btn:last-child{border-bottom:none}
+.cat-btn:hover{background:#fafaf9}
+.cat-btn.active{background:#1c1917}
+.cat-btn.active .cat-lbl{color:white}
+.cat-btn.active .cat-count{background:rgba(255,255,255,.15);color:#fde68a}
+.cat-lbl{font-family:'Manrope',sans-serif;font-size:13px;font-weight:600;color:#44403c;display:flex;align-items:center;gap:8px}
+.cat-count{font-family:'Manrope',sans-serif;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:#f5f5f4;color:#78716c}
+
+/* File list */
+.file-list{background:white;border:1px solid #e7e5e4;border-radius:16px;overflow:hidden}
+.file-list-hd{padding:16px 20px;border-bottom:1px solid #f5f5f4;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.doc-row{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid #f5f5f4;cursor:pointer;transition:background .15s}
+.doc-row:last-child{border-bottom:none}
+.doc-row:hover{background:#fafaf9}
+.doc-icon{width:36px;height:44px;background:white;border:1px solid #e7e5e4;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.doc-icon .ext{position:absolute;bottom:-1px;left:0;right:0;background:#1c1917;color:white;font-family:'Manrope',sans-serif;font-size:7px;font-weight:700;text-align:center;padding:2px 0;border-radius:0 0 4px 4px;letter-spacing:.05em}
+.doc-icon.pdf .ext{background:#dc2626}
+.doc-icon.dwg .ext{background:#1e3a8a}
+.doc-icon.docx .ext{background:#2563eb}
+.doc-icon.xlsx .ext{background:#047857}
+.doc-icon.img .ext{background:#7c3aed}
+.status-pill{font-size:9px;text-transform:uppercase;letter-spacing:.12em;padding:2px 7px;border-radius:999px;font-weight:700;font-family:'Manrope',sans-serif;white-space:nowrap}
+.pill-current{background:#dcfce7;color:#047857}
+.pill-approved{background:#eff6ff;color:#1e3a8a}
+.pill-draft{background:#fef3c7;color:#92400e}
+.pill-generated{background:#f3e8ff;color:#5b21b6}
+.pill-signed{background:#f0fdf4;color:#047857;border:1px solid #bbf7d0}
+
+/* Upload zone */
+.mini-drop{border:2px dashed #d6d3d1;border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:#fafaf9}
+.mini-drop:hover{border-color:#1c1917;background:#f5f5f4}
+
+/* Storage bar */
+.storage-bar{height:8px;background:#f5f5f4;border-radius:999px;overflow:hidden;margin-top:6px}
+.storage-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#1c1917,#b45309)}
+
+/* Buttons */
+.btn-dark{font-family:'Manrope',sans-serif;background:#1c1917;color:white;border:none;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;text-decoration:none;transition:background .15s}
+.btn-dark:hover{background:#292524}
+.btn-sm{font-family:'Manrope',sans-serif;background:white;color:#44403c;border:1px solid #e7e5e4;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;text-decoration:none;transition:all .15s}
+.btn-sm:hover{border-color:#1c1917;color:#1c1917}
+
+@media(max-width:430px){.container{padding:16px 12px 80px}.layout{gap:14px}h1{font-size:22px!important}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div style="display:flex;align-items:center;gap:14px">
+      <a href="project-workspace.html" class="sans" style="font-size:13px;color:#78716c;text-decoration:none;display:flex;align-items:center;gap:5px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>Project
+      </a>
+      <div style="height:18px;width:1px;background:#e7e5e4"></div>
+      <div style="font-size:17px;font-weight:600;letter-spacing:-.02em">Build-Budget</div>
+      <span class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#5b21b6;padding:3px 8px;background:#f3e8ff;border-radius:999px;font-weight:600">Project vault</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button onclick="document.getElementById('upload-modal').style.display='flex'" class="btn-dark">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Upload
+      </button>
+      <div style="width:32px;height:32px;border-radius:999px;background:#fde68a;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px">JW</div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Hero -->
+  <div style="margin-bottom:24px">
+    <div class="sans" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em;color:#78716c;margin-bottom:10px;font-weight:600">Rear kitchen extension · Caversham</div>
+    <h1 style="font-size:clamp(24px,5vw,40px);font-weight:500;line-height:1.05;letter-spacing:-.02em;margin-bottom:10px">
+      Project <span style="font-style:italic;color:#5b21b6">vault</span>.
+    </h1>
+    <p class="sans" style="font-size:14px;color:#57534e;max-width:560px;line-height:1.55">Every document, drawing, calculation and approval in one place. Shared automatically with your awarded contractor.</p>
+  </div>
+
+  <div class="layout">
+
+    <!-- ── SIDEBAR ── -->
+    <div>
+      <div class="sidebar">
+        <div class="sidebar-hd">
+          <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;margin-bottom:2px">Categories</div>
+        </div>
+        <button class="cat-btn active" id="cat-all" onclick="filterCat('all')">
+          <span class="cat-lbl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>All files
+          </span>
+          <span class="cat-count" id="cnt-all">15</span>
+        </button>
+        <button class="cat-btn" id="cat-drawings" onclick="filterCat('drawings')">
+          <span class="cat-lbl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Drawings
+          </span>
+          <span class="cat-count" id="cnt-drawings">4</span>
+        </button>
+        <button class="cat-btn" id="cat-calcs" onclick="filterCat('calcs')">
+          <span class="cat-lbl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18z"/></svg>Calculations
+          </span>
+          <span class="cat-count" id="cnt-calcs">2</span>
+        </button>
+        <button class="cat-btn" id="cat-compliance" onclick="filterCat('compliance')">
+          <span class="cat-lbl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Compliance
+          </span>
+          <span class="cat-count" id="cnt-compliance">4</span>
+        </button>
+        <button class="cat-btn" id="cat-quotes" onclick="filterCat('quotes')">
+          <span class="cat-lbl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Quotations
+          </span>
+          <span class="cat-count" id="cnt-quotes">3</span>
+        </button>
+        <button class="cat-btn" id="cat-contracts" onclick="filterCat('contracts')">
+          <span class="cat-lbl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>Contracts
+          </span>
+          <span class="cat-count" id="cnt-contracts">1</span>
+        </button>
+        <button class="cat-btn" id="cat-om" onclick="filterCat('om')">
+          <span class="cat-lbl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>O&amp;M manuals
+          </span>
+          <span class="cat-count" id="cnt-om">1</span>
+        </button>
+        <button class="cat-btn" id="cat-generated" onclick="filterCat('generated')">
+          <span class="cat-lbl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Generated
+          </span>
+          <span class="cat-count" id="cnt-generated">0</span>
+        </button>
+      </div>
+
+      <!-- Storage -->
+      <div style="background:white;border:1px solid #e7e5e4;border-radius:14px;padding:16px;margin-top:14px">
+        <div class="sans" style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <span style="font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600">Storage used</span>
+          <span style="font-size:12px;font-weight:600;color:#1c1917">47 MB of 5 GB</span>
+        </div>
+        <div class="storage-bar"><div class="storage-fill" style="width:1%"></div></div>
+        <div class="sans" style="font-size:11px;color:#a8a29e;margin-top:6px">15 files · unlimited on Pro</div>
+      </div>
+
+      <!-- Upload mini -->
+      <div class="mini-drop" style="margin-top:14px" onclick="document.getElementById('upload-modal').style.display='flex'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#78716c" stroke-width="2" style="margin:0 auto 8px;display:block"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div class="sans" style="font-size:13px;font-weight:600;color:#44403c;margin-bottom:2px">Upload a document</div>
+        <div class="sans" style="font-size:11px;color:#a8a29e">PDF, DWG, JPG, DOCX</div>
+      </div>
+    </div>
+
+    <!-- ── FILE LIST ── -->
+    <div>
+      <div class="file-list">
+        <div class="file-list-hd">
+          <div>
+            <div style="font-size:18px;font-weight:500;letter-spacing:-.01em" id="list-title">All files</div>
+            <div class="sans" style="font-size:12px;color:#78716c;margin-top:2px" id="list-sub">15 documents · last updated 12 May 2026</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-sm">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              List
+            </button>
+          </div>
+        </div>
+
+        <!-- ── DRAWINGS ── -->
+        <div class="doc-row" data-cat="drawings">
+          <div class="doc-icon dwg"><svg width="18" height="22" viewBox="0 0 100 130"><rect x="15" y="10" width="70" height="90" fill="none" stroke="#1e3a8a" stroke-width="3"/><rect x="25" y="25" width="20" height="20" fill="none" stroke="#1e3a8a" stroke-width="1.5"/><rect x="55" y="55" width="20" height="30" fill="none" stroke="#1e3a8a" stroke-width="1.5"/></svg><div class="ext">DWG</div></div>
+          <div style="flex:1;min-width:0">
+            <div class="sans" style="font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">ground_floor_proposed_rev3.dwg</div>
+            <div class="sans" style="font-size:11px;color:#78716c">Drawing · 3.1 MB · Uploaded 12 May 2026 · Rev 3</div>
+          </div>
+          <span class="status-pill pill-current">Current</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          </div>
+        </div>
+
+        <div class="doc-row" data-cat="drawings">
+          <div class="doc-icon pdf"><svg width="18" height="22" viewBox="0 0 100 130"><rect x="15" y="10" width="70" height="90" fill="none" stroke="#dc2626" stroke-width="3"/><line x1="30" y1="45" x2="70" y2="45" stroke="#dc2626" stroke-width="2"/><line x1="30" y1="60" x2="70" y2="60" stroke="#dc2626" stroke-width="2"/><line x1="30" y1="75" x2="55" y2="75" stroke="#dc2626" stroke-width="2"/></svg><div class="ext">PDF</div></div>
+          <div style="flex:1;min-width:0">
+            <div class="sans" style="font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">elevations_north_east.pdf</div>
+            <div class="sans" style="font-size:11px;color:#78716c">Drawing · 1.8 MB · Uploaded 10 May 2026 · Rev 2</div>
+          </div>
+          <span class="status-pill pill-current">Current</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          </div>
+        </div>
+
+        <div class="doc-row" data-cat="drawings">
+          <div class="doc-icon pdf"><svg width="18" height="22" viewBox="0 0 100 130"><rect x="15" y="10" width="70" height="90" fill="none" stroke="#dc2626" stroke-width="3"/></svg><div class="ext">PDF</div></div>
+          <div style="flex:1;min-width:0">
+            <div class="sans" style="font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">roof_plan.pdf</div>
+            <div class="sans" style="font-size:11px;color:#78716c">Drawing · 0.9 MB · Uploaded 10 May 2026 · Rev 1</div>
+          </div>
+          <span class="status-pill pill-current">Current</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          </div>
+        </div>
+
+        <div class="doc-row" data-cat="drawings">
+          <div class="doc-icon img"><svg width="18" height="22" viewBox="0 0 100 130"><rect x="15" y="20" width="70" height="60" fill="none" stroke="#7c3aed" stroke-width="3" rx="4"/><circle cx="35" cy="42" r="8" fill="none" stroke="#7c3aed" stroke-width="2"/><path d="M15,70 L40,50 L60,65 L80,45 L85,80 L15,80 Z" fill="none" stroke="#7c3aed" stroke-width="2"/></svg><div class="ext">JPG</div></div>
+          <div style="flex:1;min-width:0">
+            <div class="sans" style="font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">hand_sketch_original.jpg</div>
+            <div class="sans" style="font-size:11px;color:#78716c">Sketch (original) · 3.4 MB · Uploaded 8 May 2026 · Converted ✓</div>
+          </div>
+          <span class="status-pill pill-approved">Converted</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          </div>
+        </div>
+
+        <!-- ── CALCULATIONS ── -->
+        <div class="doc-row" data-cat="calcs" style="background:#fafaf9">
+          <div style="flex:0 0 100%;padding:0;margin:0" class="sans">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;padding:8px 0 4px">Calculations</div>
+          </div>
+        </div>
+
+        <div class="doc-row" data-cat="calcs">
+          <div class="doc-icon pdf"><svg width="18" height="22" viewBox="0 0 100 130"><rect x="15" y="10" width="70" height="90" fill="none" stroke="#dc2626" stroke-width="3"/></svg><div class="ext">PDF</div></div>
+          <div style="flex:1;min-width:0">
+            <div class="sans" style="font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">structural_calcs_RSJ_beam.pdf</div>
+            <div class="sans" style="font-size:11px;color:#78716c">Structural engineer · 2.1 MB · Issued 5 May 2026</div>
+          </div>
+          <span class="status-pill pill-approved">Approved</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          </div>
+        </div>
+
+        <div class="doc-row" data-cat="calcs">
+          <div class="doc-icon pdf"><svg width="18" height="22" viewBox="0 0 100 130"><rect x="15" y="10" width="70" height="90" fill="none" stroke="#dc2626" stroke-width="3"/></svg><div class="ext">PDF</div></div>
+          <div style="flex:1;min-width:0">
+            <div class="sans" style="font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">thermal_performance_calc_SAP.pdf</div>
+            <div class="sans" style="font-size:11px;color:#78716c">Energy assessor · 0.8 MB · Issued 3 May 2026</div>
+          </div>
+          <span class="status-pill pill-approved">Approved</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          </div>
+        </div>
+
+        <!-- ── COMPLIANCE ── -->
+        <div class="doc-row" data-cat="compliance" style="background:#fafaf9">
+          <div style="flex:0 0 100%;padding:0;margin:0" class="sans">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;padding:8px 0 4px">Compliance &amp; approvals</div>
+          </div>
+        </div>
+
+        <div class="doc-row" data-cat="compliance">
+          <div class="doc-icon pdf"><svg width="18" height="22" viewBox="0 0 100 130"><rect x="15" y="10" width="70" height="90" fill="none" stroke="#dc2626" stroke-width="3"/></svg><div class="ext">PDF</div></div>
+          <div style="flex:1;min-width:0">
+            <div class="sans" style="font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">planning_permission_granted.pdf</div>
+            <div class="sans" style="font-size:11px;color:#78716c">Reading BC · 1.4 MB · Granted 14 Apr 2026 · Ref: 26/01847/HSE</div>
+          </div>
+          <span class="status-pill pill-signed">Granted</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          </div>
+        </div>
+
+        <div class="doc-row" data-cat="compliance">
+          <div class="doc-icon pdf"><svg width="18" height="22" viewBox="0 0 100 130"><rect x="15" y="10" width="70" height="90" fill="none" stroke="#dc2626" stroke-width="3"/></svg><div class="ext">PDF</div></div>
+          <div style="flex:1;min-width:0">
+            <div class="sans" style="font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">building_regs_approval_full_plans.pdf</div>
+            <div class="sans" style="font-size:11px;color:#78716c">Reading BC Building Control · 2.3 MB · Approved 28 Apr 2026</div>
+          </div>
+          <span class="status-pill pill-signed">Approved</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          </div>
+        </div>
+
+        <div class="doc-row" data-cat="compliance">
+          <div class="doc-icon docx"><svg width="18" height="22" viewBox="0 0 100 130"><rect x="15" y="10" width="70" height="90" fill="none" stroke="#2563eb" stroke-width="3"/></svg><div class="ext">DOCX</div></div>
+          <div style="flex:1;min-width:0">
+            <div class="sans" style="font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">party_wall_notice_served.docx</div>
+            <div class="sans" style="font-size:11px;color:#78716c">Party wall · 0.3 MB · Served 1 May 2026 · Awaiting acknowledgement</div>
+          </div>
+          <span class="status-pill pill-draft">Pending</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          </div>
+        </div>
+
+        <div class="doc-row" data-cat="compliance">
+          <div class="doc-icon pdf"><svg width="18" height="22" viewBox="0 0 100 130"><rect x="15" y="10" width="70" height="90" fill="none" stroke="#dc2626" stroke-width="3"/></svg><div class="ext">PDF</div></div>
+          <div style="flex:1;min-width:0">
+            <div class="sans" style="font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">architects_drawings_signed.pdf</div>
+            <div class="sans" style="font-size:11px;color:#78716c">Architect drawings · 8.2 MB · Signed off 2 May 2026</div>
+          </div>
+          <span class="status-pill pill-signed">Signed</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          </div>
+        </div>
+
+        <!-- ── QUOTATIONS ── -->
+        <div class="doc-row" data-cat="quotes" style="background:#fafaf9">
+          <div style="flex:0 0 100%;padding:0;margin:0" class="sans">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;padding:8px 0 4px">Quotations</div>
+          </div>
+        </div>
+
+        <div class="doc-row" data-cat="quotes">
+          <div class="doc-icon pdf"><svg width="18" height="22" viewBox="0 0 100 130"><rect x="15" y="10" width="70" height="90" fill="none" stroke="#dc2626" stroke-width="3"/></svg><div class="ext">PDF</div></div>
+          <div style="flex:1;min-width:0">
+            <div class="sans" style="font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">henderson_sons_quote_v1.pdf</div>
+            <div class="sans" style="font-size:11px;color:#78716c">Henderson &amp; Sons · £42,976 incl. VAT · Received 10 May 2026</div>
+          </div>
+          <span class="status-pill pill-current">Received</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          </div>
+        </div>
+
+        <div class="doc-row" data-cat="quotes">
+          <div class="doc-icon pdf"><svg width="18" height="22" viewBox="0 0 100 130"><rect x="15" y="10" width="70" height="90" fill="none" stroke="#dc2626" stroke-width="3"/></svg><div class="ext">PDF</div></div>
+          <div style="flex:1;min-width:0">
+            <div class="sans" style="font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">ridgeline_construction_quote_v1.pdf</div>
+            <div class="sans" style="font-size:11px;color:#78716c">Ridgeline Construction · £39,840 incl. VAT · Received 11 May 2026</div>
+          </div>
+          <span class="status-pill pill-current">Received</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          </div>
+        </div>
+
+        <div class="doc-row" data-cat="quotes">
+          <div class="doc-icon pdf"><svg width="18" height="22" viewBox="0 0 100 130"><rect x="15" y="10" width="70" height="90" fill="none" stroke="#dc2626" stroke-width="3"/></svg><div class="ext">PDF</div></div>
+          <div style="flex:1;min-width:0">
+            <div class="sans" style="font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">pallister_builders_quote_v1.pdf</div>
+            <div class="sans" style="font-size:11px;color:#78716c">Pallister Builders · £44,520 incl. VAT · Received 9 May 2026</div>
+          </div>
+          <span class="status-pill pill-current">Received</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          </div>
+        </div>
+
+        <!-- ── CONTRACTS ── -->
+        <div class="doc-row" data-cat="contracts" style="background:#fafaf9">
+          <div style="flex:0 0 100%;padding:0;margin:0" class="sans">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;padding:8px 0 4px">Contracts</div>
+          </div>
+        </div>
+
+        <div class="doc-row" data-cat="contracts">
+          <div class="doc-icon pdf"><svg width="18" height="22" viewBox="0 0 100 130"><rect x="15" y="10" width="70" height="90" fill="none" stroke="#dc2626" stroke-width="3"/></svg><div class="ext">PDF</div></div>
+          <div style="flex:1;min-width:0">
+            <div class="sans" style="font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">build_budget_contract_EQ2026_0847.pdf</div>
+            <div class="sans" style="font-size:11px;color:#78716c">Build-Budget contract · Henderson &amp; Sons · Signed 13 May 2026</div>
+          </div>
+          <span class="status-pill pill-signed">Signed</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          </div>
+        </div>
+
+        <!-- ── O&M ── -->
+        <div class="doc-row" data-cat="om" style="background:#fafaf9">
+          <div style="flex:0 0 100%;padding:0;margin:0" class="sans">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;padding:8px 0 4px">O&amp;M manuals</div>
+          </div>
+        </div>
+
+        <div class="doc-row" data-cat="om">
+          <div class="doc-icon pdf"><svg width="18" height="22" viewBox="0 0 100 130"><rect x="15" y="10" width="70" height="90" fill="none" stroke="#dc2626" stroke-width="3"/></svg><div class="ext">PDF</div></div>
+          <div style="flex:1;min-width:0">
+            <div class="sans" style="font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">warmup_ufh_installation_manual.pdf</div>
+            <div class="sans" style="font-size:11px;color:#78716c">Warmup UFH system · 4.1 MB · Added at handover · May 2026</div>
+          </div>
+          <span class="status-pill pill-approved">Handover</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          </div>
+        </div>
+
+      </div><!-- /file-list -->
+
+      <!-- Share banner -->
+      <div style="margin-top:16px;background:white;border:1px solid #e7e5e4;border-radius:14px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:36px;height:36px;border-radius:10px;background:#f3e8ff;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5b21b6" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </div>
+          <div class="sans">
+            <div style="font-size:13px;font-weight:600;color:#1c1917">Share vault with contractor</div>
+            <div style="font-size:12px;color:#78716c">Grant Henderson &amp; Sons read-only access to all documents</div>
+          </div>
+        </div>
+        <button class="btn-dark" style="background:#5b21b6" onmouseover="this.style.background='#4c1d95'" onmouseout="this.style.background='#5b21b6'">Share access</button>
+      </div>
+
+    </div><!-- /file list col -->
+  </div><!-- /layout -->
+</div><!-- /container -->
+
+<!-- ── UPLOAD MODAL ── -->
+<div id="upload-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;padding:24px">
+  <div style="background:white;border-radius:20px;padding:28px;max-width:480px;width:100%;box-shadow:0 24px 60px -12px rgba(0,0,0,.4)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div style="font-size:22px;font-weight:500">Upload document</div>
+      <button onclick="document.getElementById('upload-modal').style.display='none'" style="background:none;border:none;cursor:pointer;color:#78716c;padding:4px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    <div class="dropzone" style="border:2.5px dashed #d6d3d1;border-radius:14px;padding:32px;text-align:center;cursor:pointer;background:#fafaf9;margin-bottom:18px">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#78716c" stroke-width="2" style="margin:0 auto 12px;display:block"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <div style="font-size:16px;font-weight:500;margin-bottom:4px">Drop file here or click to browse</div>
+      <div class="sans" style="font-size:12px;color:#78716c">PDF, DWG, DXF, DOCX, XLSX, JPG, PNG · up to 50MB</div>
+    </div>
+    <div class="sans" style="margin-bottom:14px">
+      <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;margin-bottom:6px">Category</label>
+      <select style="width:100%;padding:10px 12px;font-family:'Manrope',sans-serif;font-size:14px;border:1.5px solid #e7e5e4;border-radius:10px;background:white;color:#1c1917">
+        <option>Drawings</option>
+        <option>Calculations</option>
+        <option>Compliance &amp; approvals</option>
+        <option>Quotations</option>
+        <option>Contracts</option>
+        <option>O&amp;M manuals</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button onclick="document.getElementById('upload-modal').style.display='none'" class="btn-secondary" style="flex:1;justify-content:center">Cancel</button>
+      <button class="btn-dark" style="flex:2;justify-content:center">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload document
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DEMO NAV -->
+<div id="bb-demo-nav" style="position:fixed;bottom:16px;right:16px;z-index:1000;font-family:'Manrope',sans-serif">
+  <details>
+    <summary style="background:#1c1917;color:white;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Demo · jump to
+    </summary>
+    <div style="background:#1c1917;border-radius:12px;padding:8px;max-width:260px;max-height:60vh;overflow-y:auto;margin-top:4px;box-shadow:0 12px 32px -8px rgba(0,0,0,.4)">
+      <a href="index.html" style="display:block;padding:6px 10px;color:#fcd34d;font-size:12px;border-radius:6px;text-decoration:none">⌂ Demo home</a>
+      <a href="homeowner-dashboard.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Dashboard</a>
+      <a href="my-projects.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">My Projects</a>
+      <a href="project-workspace.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Project Workspace</a>
+      <a href="sketch-upload.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Upload sketch</a>
+      <a href="project-vault.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Project vault</a>
+      <a href="measurement-review.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Measurement review</a>
+      <a href="quantity-summary.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Quantity summary</a>
+      <a href="budget-pricing.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Budget pricing</a>
+      <a href="material-selection.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Material selection</a>
+      <a href="send-enquiry.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Send enquiry</a>
+      <a href="homeowner-comparison.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Compare quotes</a>
+    </div>
+  </details>
+</div>
+
+<script>
+// Category filter
+var COUNTS = {all:15,drawings:4,calcs:2,compliance:4,quotes:3,contracts:1,om:1,generated:0};
+var TITLES = {all:'All files',drawings:'Drawings',calcs:'Calculations',compliance:'Compliance & approvals',quotes:'Quotations',contracts:'Contracts',om:'O&M manuals',generated:'Generated'};
+var SUBS = {all:'15 documents · last updated 12 May 2026',drawings:'4 files',calcs:'2 files',compliance:'4 files',quotes:'3 files',contracts:'1 file',om:'1 file',generated:'No generated documents yet'};
+
+function filterCat(cat) {
+  // Update button states
+  document.querySelectorAll('.cat-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('cat-'+cat).classList.add('active');
+  // Show/hide rows
+  document.querySelectorAll('.doc-row').forEach(function(row){
+    var rc = row.getAttribute('data-cat');
+    if(!rc) return; // section headers — always hide unless all
+    row.style.display = (cat==='all'||cat===rc) ? 'flex' : 'none';
+  });
+  // Section headers
+  document.querySelectorAll('.doc-row:not([data-cat])').forEach(function(r){
+    r.style.display = cat==='all' ? 'flex' : 'none';
+  });
+  // Update title
+  document.getElementById('list-title').textContent = TITLES[cat]||cat;
+  document.getElementById('list-sub').textContent = SUBS[cat]||'';
+}
+
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(e){console.warn('[PWA]',e);});});}
+</script>
+</body>
+</html>

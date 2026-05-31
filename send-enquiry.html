@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1c1917">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Build-Budget">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<title>Build-Budget — Send Enquiry</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Fraunces',Georgia,serif;background:#faf7f2;color:#1c1917;min-height:100vh}
+.sans{font-family:'Manrope',sans-serif}
+.topbar{background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid #e7e5e4;position:sticky;top:0;z-index:20}
+.topbar-inner{max-width:1200px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.layout{max-width:1200px;margin:0 auto;padding:32px 24px 80px;display:grid;grid-template-columns:1fr 320px;gap:28px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+@media(max-width:430px){.layout{padding:16px 12px 80px}h1{font-size:22px!important}}
+.card{background:white;border:1px solid #e7e5e4;border-radius:18px;overflow:hidden;margin-bottom:18px}
+.card-hd{padding:16px 22px;border-bottom:1px solid #f5f5f4;display:flex;align-items:start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.card-hd h2{font-size:18px;font-weight:500;letter-spacing:-.01em}
+.card-hd .sub{font-family:'Manrope',sans-serif;font-size:12px;color:#78716c;margin-top:3px}
+.card-body{padding:18px 22px}
+/* Steps */
+.step-strip{display:flex;align-items:center;gap:0;margin-bottom:28px;background:white;border:1px solid #e7e5e4;border-radius:14px;padding:14px 18px}
+.step{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.step-num{width:28px;height:28px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;transition:all .2s}
+.step-num.done{background:#047857;color:white}
+.step-num.active{background:#1c1917;color:white}
+.step-num.todo{background:#f5f5f4;color:#78716c}
+.step-label{font-family:'Manrope',sans-serif;font-size:13px;font-weight:600;color:#78716c}
+.step-label.active{color:#1c1917}
+.step-label.done{color:#047857}
+.step-conn{flex:1;height:2px;background:#e7e5e4;margin:0 12px;border-radius:2px}
+.step-conn.done{background:#047857}
+/* Contractor cards */
+.pro-card{border:2px solid #e7e5e4;border-radius:14px;padding:16px;transition:all .18s;cursor:pointer;background:white;position:relative}
+.pro-card:hover{border-color:#a8a29e;box-shadow:0 4px 14px -4px rgba(0,0,0,.1)}
+.pro-card.selected{border-color:#1c1917;background:#fafaf9}
+.pro-card.selected .select-ring{background:#1c1917;border-color:#1c1917}
+.pro-card.selected .select-ring::after{opacity:1}
+.select-ring{width:22px;height:22px;border-radius:999px;border:2px solid #d6d3d1;background:white;flex-shrink:0;position:relative;transition:all .15s}
+.select-ring::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:999px;background:white;opacity:0;transition:opacity .15s}
+.cred-pill{font-size:9px;padding:2px 7px;border-radius:999px;font-weight:700;font-family:'Manrope',sans-serif;background:#f5f5f4;color:#44403c;white-space:nowrap}
+.rating-stars{display:flex;align-items:center;gap:3px;font-family:'Manrope',sans-serif;font-size:12px}
+.avatar-circle{width:48px;height:48px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;font-family:'Fraunces',serif}
+.selected-count{font-family:'Manrope',sans-serif;font-size:12px;color:#78716c}
+.selected-count.ready{color:#047857;font-weight:600}
+/* Form */
+textarea.std{width:100%;padding:13px 16px;font-size:14px;font-family:'Manrope',sans-serif;border:1.5px solid #e7e5e4;border-radius:12px;background:#fafaf9;color:#1c1917;line-height:1.55;resize:vertical;min-height:100px;transition:border .15s}
+textarea.std:focus{outline:none;border-color:#1c1917;background:white;box-shadow:0 0 0 3px rgba(28,25,23,.06)}
+input.std{width:100%;padding:11px 14px;font-size:14px;font-family:'Manrope',sans-serif;border:1.5px solid #e7e5e4;border-radius:10px;background:#fafaf9;color:#1c1917;transition:border .15s}
+input.std:focus{outline:none;border-color:#1c1917;background:white;box-shadow:0 0 0 3px rgba(28,25,23,.06)}
+.field-label{font-family:'Manrope',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;display:block;margin-bottom:6px}
+.field-help{font-family:'Manrope',sans-serif;font-size:12px;color:#78716c;margin-top:6px;line-height:1.4}
+/* Deadline chips */
+.dl-chip{font-family:'Manrope',sans-serif;font-size:13px;padding:8px 16px;border-radius:999px;border:1.5px solid #e7e5e4;background:white;color:#44403c;cursor:pointer;font-weight:500;transition:all .15s}
+.dl-chip:hover{border-color:#1c1917}
+.dl-chip.active{background:#1c1917;color:white;border-color:#1c1917}
+/* Summary rail */
+.rail{background:white;border:1px solid #e7e5e4;border-radius:18px;overflow:hidden;position:sticky;top:76px}
+.rail-hd{padding:16px 20px;border-bottom:1px solid #f5f5f4}
+.rail-body{padding:16px 20px}
+.rail-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-family:'Manrope',sans-serif;font-size:13px;border-bottom:1px solid #f5f5f4}
+.rail-row:last-child{border-bottom:none}
+.rail-row .label{color:#78716c}
+.rail-row .val{font-weight:600;color:#1c1917}
+.privacy-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 16px;display:flex;gap:10px;align-items:start;margin-top:16px}
+.privacy-box p{font-family:'Manrope',sans-serif;font-size:12px;color:#1e3a8a;line-height:1.5}
+/* Buttons */
+.btn-primary{font-family:'Manrope',sans-serif;background:#1c1917;color:white;border:none;padding:14px 24px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:background .15s;text-decoration:none}
+.btn-primary:hover{background:#292524}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed}
+.btn-secondary{font-family:'Manrope',sans-serif;background:white;color:#44403c;border:1.5px solid #e7e5e4;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.btn-secondary:hover{border-color:#1c1917;color:#1c1917}
+/* Sent confirmation */
+#sent-screen{display:none}
+.sent-wrap{text-align:center;padding:60px 24px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div style="display:flex;align-items:center;gap:14px">
+      <a href="project-workspace.html" class="sans" style="font-size:13px;color:#78716c;text-decoration:none;display:flex;align-items:center;gap:5px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>Project
+      </a>
+      <div style="height:18px;width:1px;background:#e7e5e4"></div>
+      <div style="font-size:17px;font-weight:600;letter-spacing:-.02em">Build-Budget</div>
+      <span class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#44403c;padding:3px 8px;background:#f5f5f4;border-radius:999px;font-weight:600">Send enquiry</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:32px;height:32px;border-radius:999px;background:#fde68a;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px">JW</div>
+    </div>
+  </div>
+</header>
+
+<!-- ── MAIN FLOW ── -->
+<div id="main-flow">
+<div class="layout">
+<div>
+
+  <!-- Hero -->
+  <div style="margin-bottom:24px">
+    <div class="sans" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em;color:#78716c;margin-bottom:10px;font-weight:600">Rear kitchen extension</div>
+    <h1 style="font-size:clamp(24px,5vw,40px);font-weight:500;line-height:1.05;letter-spacing:-.02em;margin-bottom:12px">
+      Send your <span style="font-style:italic;color:#b45309">enquiry</span>.
+    </h1>
+    <p class="sans" style="font-size:15px;color:#57534e;max-width:600px;line-height:1.55">Choose up to 3 vetted local contractors, add a covering note, set a response deadline and send. They'll each receive your drawings, measurements and materials list.</p>
+  </div>
+
+  <!-- Step indicator -->
+  <div class="step-strip">
+    <div class="step">
+      <div class="step-num active" id="sn1">1</div>
+      <span class="step-label active sans" id="sl1">Choose contractors</span>
+    </div>
+    <div class="step-conn" id="sc1"></div>
+    <div class="step">
+      <div class="step-num todo" id="sn2">2</div>
+      <span class="step-label sans" id="sl2">Your brief</span>
+    </div>
+    <div class="step-conn" id="sc2"></div>
+    <div class="step">
+      <div class="step-num todo" id="sn3">3</div>
+      <span class="step-label sans" id="sl3">Review &amp; send</span>
+    </div>
+  </div>
+
+  <!-- ══ STEP 1: Choose contractors ══ -->
+  <div id="step1">
+
+    <div class="card">
+      <div class="card-hd">
+        <div>
+          <h2>Vetted contractors near you</h2>
+          <div class="sub">Matching your project type (extension) and area (RG4) · verified credentials only</div>
+        </div>
+        <div id="sel-count" class="selected-count sans">0 of 3 selected</div>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:12px" id="contractor-list">
+
+        <!-- Card A -->
+        <div class="pro-card selected" data-id="A" onclick="toggleContractor('A')">
+          <div style="display:flex;gap:14px;align-items:start">
+            <div class="select-ring" id="ring-A"></div>
+            <div class="avatar-circle" style="background:#fef3c7;color:#92400e">H</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:17px;font-weight:500;letter-spacing:-.01em;margin-bottom:3px">Henderson &amp; Sons</div>
+              <div class="sans" style="font-size:12px;color:#78716c;margin-bottom:8px">General builder · Reading &amp; 30 miles · Est. 2008</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+                <span class="cred-pill">FMB</span>
+                <span class="cred-pill">TrustMark</span>
+                <span class="cred-pill">CSCS</span>
+                <span class="cred-pill">Fully insured</span>
+              </div>
+              <div class="rating-stars">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#fbbf24"><polygon points="12 2 15 9 22 9 17 14 19 22 12 18 5 22 7 14 2 9 9 9"/></svg>
+                <strong>4.9</strong><span style="color:#78716c">(42 reviews)</span>
+                <span style="color:#d6d3d1;margin:0 6px">·</span>
+                <span style="color:#78716c">Avg. response 6 hours</span>
+              </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#78716c;font-weight:600;margin-bottom:4px">6 extensions</div>
+              <div class="sans" style="font-size:11px;color:#78716c">in RG postcode</div>
+              <div class="sans" style="font-size:11px;color:#047857;font-weight:600;margin-top:6px">Available Jun</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card B -->
+        <div class="pro-card selected" data-id="B" onclick="toggleContractor('B')">
+          <div style="display:flex;gap:14px;align-items:start">
+            <div class="select-ring" id="ring-B"></div>
+            <div class="avatar-circle" style="background:#eff6ff;color:#1e3a8a">R</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:17px;font-weight:500;letter-spacing:-.01em;margin-bottom:3px">Ridgeline Construction</div>
+              <div class="sans" style="font-size:12px;color:#78716c;margin-bottom:8px">General builder · Oxford &amp; surrounding · Est. 2014</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+                <span class="cred-pill">TrustMark</span>
+                <span class="cred-pill">NHBC</span>
+                <span class="cred-pill">CSCS</span>
+                <span class="cred-pill">Fully insured</span>
+              </div>
+              <div class="rating-stars">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#fbbf24"><polygon points="12 2 15 9 22 9 17 14 19 22 12 18 5 22 7 14 2 9 9 9"/></svg>
+                <strong>4.8</strong><span style="color:#78716c">(28 reviews)</span>
+                <span style="color:#d6d3d1;margin:0 6px">·</span>
+                <span style="color:#78716c">Avg. response 12 hours</span>
+              </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#78716c;font-weight:600;margin-bottom:4px">4 extensions</div>
+              <div class="sans" style="font-size:11px;color:#78716c">in RG postcode</div>
+              <div class="sans" style="font-size:11px;color:#047857;font-weight:600;margin-top:6px">Available Jul</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card C -->
+        <div class="pro-card" data-id="C" onclick="toggleContractor('C')">
+          <div style="display:flex;gap:14px;align-items:start">
+            <div class="select-ring" id="ring-C"></div>
+            <div class="avatar-circle" style="background:#f0fdf4;color:#047857">P</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:17px;font-weight:500;letter-spacing:-.01em;margin-bottom:3px">Pallister Builders Ltd</div>
+              <div class="sans" style="font-size:12px;color:#78716c;margin-bottom:8px">General builder · Caversham &amp; 20 miles · Est. 2011</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+                <span class="cred-pill">FMB</span>
+                <span class="cred-pill">CSCS</span>
+                <span class="cred-pill">Fully insured</span>
+              </div>
+              <div class="rating-stars">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#fbbf24"><polygon points="12 2 15 9 22 9 17 14 19 22 12 18 5 22 7 14 2 9 9 9"/></svg>
+                <strong>4.7</strong><span style="color:#78716c">(19 reviews)</span>
+                <span style="color:#d6d3d1;margin:0 6px">·</span>
+                <span style="color:#78716c">Avg. response 4 hours</span>
+              </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#78716c;font-weight:600;margin-bottom:4px">Local</div>
+              <div class="sans" style="font-size:11px;color:#78716c">Caversham based</div>
+              <div class="sans" style="font-size:11px;color:#047857;font-weight:600;margin-top:6px">Available Jun</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card D -->
+        <div class="pro-card" data-id="D" onclick="toggleContractor('D')">
+          <div style="display:flex;gap:14px;align-items:start">
+            <div class="select-ring" id="ring-D"></div>
+            <div class="avatar-circle" style="background:#faf5ff;color:#5b21b6">M</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:17px;font-weight:500;letter-spacing:-.01em;margin-bottom:3px">Monarch Building Works</div>
+              <div class="sans" style="font-size:12px;color:#78716c;margin-bottom:8px">General builder · Reading &amp; 25 miles · Est. 2006</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+                <span class="cred-pill">TrustMark</span>
+                <span class="cred-pill">FMB</span>
+                <span class="cred-pill">CSCS</span>
+                <span class="cred-pill">Fully insured</span>
+              </div>
+              <div class="rating-stars">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#fbbf24"><polygon points="12 2 15 9 22 9 17 14 19 22 12 18 5 22 7 14 2 9 9 9"/></svg>
+                <strong>4.8</strong><span style="color:#78716c">(61 reviews)</span>
+                <span style="color:#d6d3d1;margin:0 6px">·</span>
+                <span style="color:#78716c">Avg. response 8 hours</span>
+              </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#78716c;font-weight:600;margin-bottom:4px">9 extensions</div>
+              <div class="sans" style="font-size:11px;color:#78716c">in RG postcode</div>
+              <div class="sans" style="font-size:11px;color:#d97706;font-weight:600;margin-top:6px">Available Aug</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card E -->
+        <div class="pro-card" data-id="E" onclick="toggleContractor('E')">
+          <div style="display:flex;gap:14px;align-items:start">
+            <div class="select-ring" id="ring-E"></div>
+            <div class="avatar-circle" style="background:#fff7ed;color:#c2410c">S</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:17px;font-weight:500;letter-spacing:-.01em;margin-bottom:3px">Stanbridge &amp; Co</div>
+              <div class="sans" style="font-size:12px;color:#78716c;margin-bottom:8px">General builder · Berkshire · Est. 2009</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+                <span class="cred-pill">NHBC</span>
+                <span class="cred-pill">CSCS</span>
+                <span class="cred-pill">Fully insured</span>
+              </div>
+              <div class="rating-stars">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#fbbf24"><polygon points="12 2 15 9 22 9 17 14 19 22 12 18 5 22 7 14 2 9 9 9"/></svg>
+                <strong>4.6</strong><span style="color:#78716c">(34 reviews)</span>
+                <span style="color:#d6d3d1;margin:0 6px">·</span>
+                <span style="color:#78716c">Avg. response 24 hours</span>
+              </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#78716c;font-weight:600;margin-bottom:4px">5 extensions</div>
+              <div class="sans" style="font-size:11px;color:#78716c">in RG postcode</div>
+              <div class="sans" style="font-size:11px;color:#047857;font-weight:600;margin-top:6px">Available Jun</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="step1-warning" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:12px 16px;margin-bottom:14px" class="sans">
+      <div style="font-size:13px;color:#991b1b;font-weight:600">Maximum 3 contractors per enquiry</div>
+      <div style="font-size:12px;color:#b91c1c;margin-top:2px">Deselect one to choose a different contractor.</div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <a href="project-workspace.html" class="btn-secondary">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        Back
+      </a>
+      <button class="btn-primary" id="step1-next" onclick="goStep(2)">
+        Continue to brief
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+    </div>
+
+  </div><!-- /step1 -->
+
+  <!-- ══ STEP 2: Your brief ══ -->
+  <div id="step2" style="display:none">
+
+    <div class="card">
+      <div class="card-hd">
+        <div>
+          <h2>What's included in your enquiry</h2>
+          <div class="sub">Sent automatically to every contractor you've chosen</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" class="sans">
+          <div style="display:flex;gap:10px;align-items:center;padding:11px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-size:13px;color:#064e3b">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Project brief &amp; scope
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;padding:11px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-size:13px;color:#064e3b">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Drawings (3 files)
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;padding:11px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-size:13px;color:#064e3b">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Quantity measurements
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;padding:11px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-size:13px;color:#064e3b">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Materials list &amp; prices
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;padding:11px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-size:13px;color:#064e3b">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Target start &amp; budget range
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;padding:11px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-size:13px;color:#064e3b">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Approvals in place
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">
+        <div>
+          <h2>Your covering note <span style="font-style:italic;color:#78716c;font-size:14px">— optional</span></h2>
+          <div class="sub">Personal context helps contractors decide if it's the right fit. They often respond faster when they can picture the project.</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <textarea class="std" id="covering-note" placeholder="e.g. We'd like to start by July if possible — we have a growing family and we're extending to create a proper family kitchen. Building Regs are approved and the structural engineer's calcs are attached. We're happy to discuss the spec. Please visit the site before quoting if you'd like to." rows="5"></textarea>
+        <div class="field-help">Contractors can see this — keep it factual and positive. Don't include your full address here (it's protected until you award the contract).</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">
+        <h2>Response deadline</h2>
+        <div class="sub">How long contractors have to submit a quote</div>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px" id="deadline-chips">
+          <button class="dl-chip" onclick="setDeadline(this,'5 days')">5 days</button>
+          <button class="dl-chip active" onclick="setDeadline(this,'7 days')">7 days</button>
+          <button class="dl-chip" onclick="setDeadline(this,'10 days')">10 days</button>
+          <button class="dl-chip" onclick="setDeadline(this,'14 days')">14 days</button>
+        </div>
+        <div class="field-help">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" style="vertical-align:middle;margin-right:4px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+          Shorter deadlines (5–7 days) tend to get faster responses. Longer deadlines suit complex projects where contractors need more time to plan.
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <button class="btn-secondary" onclick="goStep(1)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        Back
+      </button>
+      <button class="btn-primary" onclick="goStep(3)">
+        Review &amp; send
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+    </div>
+
+  </div><!-- /step2 -->
+
+  <!-- ══ STEP 3: Review & send ══ -->
+  <div id="step3" style="display:none">
+
+    <div class="card">
+      <div class="card-hd">
+        <div>
+          <h2>Sending to</h2>
+          <div class="sub" id="review-contractors-sub"></div>
+        </div>
+      </div>
+      <div class="card-body" id="review-contractors-list" style="display:flex;flex-direction:column;gap:10px">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><h2>Your covering note</h2></div>
+      <div class="card-body">
+        <div class="sans" style="font-size:14px;color:#44403c;line-height:1.6;background:#fafaf9;border:1px solid #e7e5e4;border-radius:10px;padding:14px 16px;white-space:pre-wrap" id="review-note"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><h2>Deadline &amp; privacy</h2></div>
+      <div class="card-body">
+        <div class="sans" style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f4;font-size:13px">
+          <span style="color:#78716c">Response deadline</span>
+          <strong id="review-deadline"></strong>
+        </div>
+        <div class="sans" style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f4;font-size:13px">
+          <span style="color:#78716c">Address shared with contractors</span>
+          <strong style="color:#047857">Postcode area only (RG4)</strong>
+        </div>
+        <div class="sans" style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px">
+          <span style="color:#78716c">Full address shared when</span>
+          <strong>You award the contract</strong>
+        </div>
+        <div class="privacy-box" style="margin-top:14px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="2" style="flex-shrink:0;margin-top:1px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <p>Your full address <strong>is only shared with the contractor you award the job to</strong> — never before. All contractors see right now is your postcode area (RG4) and the project details above.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:#c4b5fd;background:linear-gradient(180deg,#faf5ff 0%,white 100%)">
+      <div class="card-hd">
+        <div>
+          <h2>Ready to send?</h2>
+          <div class="sub">Once sent, contractors will be notified immediately and the clock starts on their deadline.</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="sans" style="font-size:13px;color:#57534e;margin-bottom:16px;line-height:1.6">
+          Each contractor will receive a secure link to view your full project brief. They can accept and quote, or decline. You'll be notified as each response comes in.
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+          <button class="btn-secondary" onclick="goStep(2)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            Back
+          </button>
+          <button class="btn-primary" id="send-btn" onclick="sendEnquiry()" style="background:#5b21b6;font-size:16px;padding:15px 28px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+            Send enquiry
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /step3 -->
+
+</div><!-- /left col -->
+
+<!-- RIGHT: Summary rail -->
+<aside>
+  <div class="rail">
+    <div class="rail-hd">
+      <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;margin-bottom:6px">Enquiry summary</div>
+      <div style="font-size:16px;font-weight:500;letter-spacing:-.01em">Rear kitchen extension</div>
+    </div>
+    <div class="rail-body">
+      <div class="rail-row"><span class="label">Project type</span><span class="val">Extension</span></div>
+      <div class="rail-row"><span class="label">Location</span><span class="val">Caversham, RG4</span></div>
+      <div class="rail-row"><span class="label">Target start</span><span class="val">Jun–Aug 2026</span></div>
+      <div class="rail-row"><span class="label">Budget range</span><span class="val">£40–60k</span></div>
+      <div class="rail-row"><span class="label">Drawings</span><span class="val">3 files</span></div>
+      <div class="rail-row"><span class="label">Materials priced</span><span class="val">£16,045</span></div>
+      <div class="rail-row"><span class="label">Approvals</span><span class="val" style="color:#047857">Planning + B. Regs</span></div>
+      <div class="rail-row">
+        <span class="label">Contractors chosen</span>
+        <span class="val" id="rail-count">2 of 3</span>
+      </div>
+    </div>
+    <div class="privacy-box" style="margin:0 16px 16px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="2" style="flex-shrink:0;margin-top:1px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <p>Contractors only see your postcode area until you award.</p>
+    </div>
+  </div>
+</aside>
+
+</div><!-- /layout -->
+</div><!-- /main-flow -->
+
+<!-- ══ SENT CONFIRMATION ══ -->
+<div id="sent-screen" style="display:none;max-width:680px;margin:0 auto;padding:60px 24px;text-align:center">
+  <div style="width:72px;height:72px;border-radius:999px;background:#f0fdf4;border:2px solid #bbf7d0;display:flex;align-items:center;justify-content:center;margin:0 auto 24px">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <div class="sans" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em;color:#78716c;font-weight:600;margin-bottom:12px">Enquiry sent</div>
+  <h1 style="font-size:clamp(28px,5vw,44px);font-weight:500;letter-spacing:-.02em;line-height:1.1;margin-bottom:16px">
+    Your enquiry is <span style="font-style:italic;color:#047857">on its way</span>.
+  </h1>
+  <p class="sans" style="font-size:15px;color:#57534e;line-height:1.6;max-width:480px;margin:0 auto 32px">
+    We've sent your brief to <strong id="sent-count"></strong>. They each have <strong id="sent-deadline"></strong> to respond. You'll get a notification as each quote comes in.
+  </p>
+
+  <div style="background:white;border:1px solid #e7e5e4;border-radius:18px;padding:24px;text-align:left;margin-bottom:28px">
+    <div class="sans" style="font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;margin-bottom:14px">Enquiry ID · EQ-2026-0847</div>
+    <div id="sent-contractor-list" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <a href="project-workspace.html" class="btn-primary">
+      Back to project
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+    <a href="homeowner-comparison.html" class="btn-secondary">View quotes when ready</a>
+  </div>
+</div>
+
+<!-- DEMO NAV -->
+<div id="bb-demo-nav" style="position:fixed;bottom:16px;right:16px;z-index:1000;font-family:'Manrope',sans-serif">
+  <details>
+    <summary style="background:#1c1917;color:white;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Demo · jump to
+    </summary>
+    <div style="background:#1c1917;border-radius:12px;padding:8px;max-width:260px;max-height:60vh;overflow-y:auto;margin-top:4px;box-shadow:0 12px 32px -8px rgba(0,0,0,.4)">
+      <a href="index.html" style="display:block;padding:6px 10px;color:#fcd34d;font-size:12px;border-radius:6px;text-decoration:none">⌂ Demo home</a>
+      <a href="homeowner-dashboard.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Dashboard</a>
+      <a href="project-workspace.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Project Workspace</a>
+      <a href="budget-pricing.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Budget pricing</a>
+      <a href="send-enquiry.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Send enquiry</a>
+      <a href="homeowner-comparison.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Compare quotes</a>
+      <a href="find-a-pro.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Find a Pro</a>
+      <a href="material-selection.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Material selection</a>
+      <a href="settings.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Settings</a>
+    </div>
+  </details>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const CONTRACTORS = {
+  A: { name: 'Henderson & Sons',       area: 'Reading & 30 miles',     rating: 4.9, reviews: 42 },
+  B: { name: 'Ridgeline Construction', area: 'Oxford & surrounding',   rating: 4.8, reviews: 28 },
+  C: { name: 'Pallister Builders Ltd', area: 'Caversham & 20 miles',  rating: 4.7, reviews: 19 },
+  D: { name: 'Monarch Building Works', area: 'Reading & 25 miles',     rating: 4.8, reviews: 61 },
+  E: { name: 'Stanbridge & Co',        area: 'Berkshire',              rating: 4.6, reviews: 34 },
+};
+
+let selected = new Set(['A','B']);
+let deadline = '7 days';
+
+// ── CONTRACTOR SELECTION ─────────────────────────────────────────────────────
+function toggleContractor(id) {
+  if (selected.has(id)) {
+    selected.delete(id);
+    document.getElementById('ring-' + id).parentElement.parentElement.classList.remove('selected');
+  } else {
+    if (selected.size >= 3) {
+      document.getElementById('step1-warning').style.display = 'block';
+      return;
+    }
+    selected.add(id);
+    document.getElementById('ring-' + id).parentElement.parentElement.classList.add('selected');
+  }
+  document.getElementById('step1-warning').style.display = 'none';
+  updateSelCount();
+}
+
+function updateSelCount() {
+  const n = selected.size;
+  const el = document.getElementById('sel-count');
+  const rail = document.getElementById('rail-count');
+  el.textContent = n + ' of 3 selected';
+  el.className = 'selected-count sans' + (n > 0 ? ' ready' : '');
+  if (rail) rail.textContent = n + ' of 3';
+  document.getElementById('step1-next').disabled = n === 0;
+}
+
+// ── DEADLINE ─────────────────────────────────────────────────────────────────
+function setDeadline(el, val) {
+  deadline = val;
+  document.querySelectorAll('.dl-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── STEP NAV ─────────────────────────────────────────────────────────────────
+function goStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('step'+i).style.display = i===n ? 'block' : 'none';
+    const num = document.getElementById('sn'+i);
+    const lbl = document.getElementById('sl'+i);
+    const conn = document.getElementById('sc'+i);
+    if (i < n) { num.className='step-num done'; lbl.className='step-label done sans'; if(conn) conn.className='step-conn done'; }
+    else if (i === n) { num.className='step-num active'; lbl.className='step-label active sans'; }
+    else { num.className='step-num todo'; lbl.className='step-label sans'; }
+  });
+
+  if (n === 3) buildReview();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ── BUILD REVIEW ─────────────────────────────────────────────────────────────
+function buildReview() {
+  const sub = document.getElementById('review-contractors-sub');
+  const list = document.getElementById('review-contractors-list');
+  const note = document.getElementById('review-note');
+  const dl = document.getElementById('review-deadline');
+
+  sub.textContent = selected.size + ' contractor' + (selected.size > 1 ? 's' : '') + ' will receive your enquiry';
+  list.innerHTML = [...selected].map(id => {
+    const c = CONTRACTORS[id];
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#fafaf9;border:1px solid #e7e5e4;border-radius:10px" class="sans">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#1c1917">${c.name}</div>
+        <div style="font-size:12px;color:#78716c">${c.area} · ★ ${c.rating} (${c.reviews})</div>
+      </div>
+      <div style="font-size:10px;padding:3px 8px;background:#f0fdf4;color:#047857;border-radius:999px;font-weight:700">Will be notified</div>
+    </div>`;
+  }).join('');
+
+  const txt = document.getElementById('covering-note').value.trim();
+  note.textContent = txt || '(No covering note added)';
+  note.style.color = txt ? '#44403c' : '#a8a29e';
+  dl.textContent = deadline;
+}
+
+// ── SEND ─────────────────────────────────────────────────────────────────────
+function sendEnquiry() {
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M12 2v4"/><path d="m16.24 7.76 2.83-2.83"/><path d="M18 12h4"/><path d="m16.24 16.24 2.83 2.83"/><path d="M12 18v4"/><path d="m7.76 16.24-2.83 2.83"/><path d="M6 12H2"/><path d="m7.76 7.76-2.83-2.83"/></svg> Sending…';
+
+  setTimeout(function() {
+    document.getElementById('main-flow').style.display = 'none';
+
+    const screen = document.getElementById('sent-screen');
+    screen.style.display = 'block';
+
+    const names = [...selected].map(id => CONTRACTORS[id].name);
+    document.getElementById('sent-count').textContent =
+      names.length === 1 ? names[0] :
+      names.slice(0,-1).join(', ') + ' and ' + names[names.length-1];
+    document.getElementById('sent-deadline').textContent = deadline + ' to respond';
+
+    document.getElementById('sent-contractor-list').innerHTML = [...selected].map(id => {
+      const c = CONTRACTORS[id];
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f4" class="sans">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#1c1917">${c.name}</div>
+          <div style="font-size:12px;color:#78716c">Notification sent · awaiting response</div>
+        </div>
+        <div style="font-size:10px;padding:3px 8px;background:#fef3c7;color:#92400e;border-radius:999px;font-weight:700">PENDING</div>
+      </div>`;
+    }).join('');
+
+    window.scrollTo({top:0,behavior:'smooth'});
+  }, 1800);
+}
+
+// Init
+updateSelCount();
+
+// Spin animation
+const style = document.createElement('style');
+style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(style);
+</script>
+
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(e){console.warn('[PWA]',e);});});}
+</script>
+</body>
+</html>

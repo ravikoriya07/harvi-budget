@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1c1917">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Build-Budget">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<title>Build-Budget — Quantity Summary</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Fraunces',Georgia,serif;background:#faf7f2;color:#1c1917;min-height:100vh}
+.sans{font-family:'Manrope',sans-serif}
+.topbar{background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid #e7e5e4;position:sticky;top:0;z-index:20}
+.topbar-inner{max-width:1100px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.container{max-width:1100px;margin:0 auto;padding:32px 24px 80px}
+.card{background:white;border:1px solid #e7e5e4;border-radius:18px;overflow:hidden;margin-bottom:20px}
+.card-header{padding:18px 24px;border-bottom:1px solid #f5f5f4;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.card-header h2{font-size:20px;font-weight:500;letter-spacing:-.01em}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-family:'Manrope',sans-serif}
+thead{border-bottom:2px solid #e7e5e4}
+th{text-align:left;padding:10px 20px;font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:700;white-space:nowrap}
+th.r{text-align:right}
+td{padding:12px 20px;border-bottom:1px solid #f5f5f4;font-size:13px;color:#44403c;vertical-align:middle}
+td.r{text-align:right;font-family:'Manrope',sans-serif}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#fafaf9}
+.conf-dot{display:inline-block;width:8px;height:8px;border-radius:999px;margin-right:6px;vertical-align:middle}
+.conf-high{background:#047857}
+.conf-mid{background:#d97706}
+.conf-low{background:#dc2626}
+.conf-badge{font-size:10px;padding:2px 7px;border-radius:999px;font-weight:600;font-family:'Manrope',sans-serif}
+.cb-high{background:#f0fdf4;color:#047857}
+.cb-mid{background:#fffbeb;color:#92400e}
+.cb-low{background:#fef2f2;color:#991b1b}
+.section-total{background:#f5f5f4;font-weight:700;color:#1c1917}
+.section-total td{border-bottom:2px solid #e7e5e4;padding:11px 20px}
+.chip-blue{font-size:10px;padding:3px 9px;border-radius:999px;background:#eff6ff;color:#1e3a8a;font-weight:600;font-family:'Manrope',sans-serif}
+@media(max-width:430px){.container{padding:16px 12px 80px}th,td{padding:9px 12px}h1{font-size:24px!important}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div style="display:flex;align-items:center;gap:14px">
+      <a href="project-workspace.html" class="sans" style="font-size:13px;color:#78716c;text-decoration:none;display:flex;align-items:center;gap:5px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>Project
+      </a>
+      <div style="height:18px;width:1px;background:#e7e5e4"></div>
+      <div style="font-size:17px;font-weight:600;letter-spacing:-.02em">Build-Budget</div>
+      <span class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#44403c;padding:3px 8px;background:#f5f5f4;border-radius:999px;font-weight:600">Qty Summary</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <a href="budget-pricing.html" class="sans" style="background:#1c1917;color:white;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px">
+        Budget pricing
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+      <div style="width:32px;height:32px;border-radius:999px;background:#fde68a;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px">JW</div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Hero -->
+  <div style="margin-bottom:32px">
+    <div class="sans" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em;color:#78716c;margin-bottom:10px;font-weight:600">Rear kitchen extension · Measurement output</div>
+    <h1 style="font-size:clamp(26px,5vw,42px);font-weight:500;line-height:1.05;letter-spacing:-.02em;margin-bottom:12px">
+      Quantity <span style="font-style:italic;color:#b45309">summary</span>.
+    </h1>
+    <p class="sans" style="font-size:15px;color:#57534e;max-width:640px;line-height:1.55">All dimensions and quantities extracted from your drawings. Confidence indicators show how clearly each value was read — amber and red items were reviewed and confirmed by you.</p>
+  </div>
+
+  <!-- Confidence key -->
+  <div style="display:flex;gap:16px;margin-bottom:28px;flex-wrap:wrap" class="sans">
+    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#44403c">
+      <span class="conf-dot conf-high"></span>High confidence (&gt;90%)
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#44403c">
+      <span class="conf-dot conf-mid"></span>Medium — reviewed by you (70–90%)
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#44403c">
+      <span class="conf-dot conf-low"></span>Low — corrected by you (&lt;70%)
+    </div>
+  </div>
+
+  <!-- Summary stats -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px">
+    <div style="background:white;border:1px solid #e7e5e4;border-radius:14px;padding:18px 20px">
+      <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;margin-bottom:6px">Total area</div>
+      <div style="font-size:28px;font-weight:600;letter-spacing:-.02em">24.2<span style="font-size:16px;font-weight:400;color:#78716c"> m²</span></div>
+      <div class="sans" style="font-size:11px;color:#78716c;margin-top:3px">Gross internal floor area</div>
+    </div>
+    <div style="background:white;border:1px solid #e7e5e4;border-radius:14px;padding:18px 20px">
+      <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;margin-bottom:6px">Wall area</div>
+      <div style="font-size:28px;font-weight:600;letter-spacing:-.02em">68.4<span style="font-size:16px;font-weight:400;color:#78716c"> m²</span></div>
+      <div class="sans" style="font-size:11px;color:#78716c;margin-top:3px">Internal + external faces</div>
+    </div>
+    <div style="background:white;border:1px solid #e7e5e4;border-radius:14px;padding:18px 20px">
+      <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;margin-bottom:6px">Perimeter</div>
+      <div style="font-size:28px;font-weight:600;letter-spacing:-.02em">19.4<span style="font-size:16px;font-weight:400;color:#78716c"> m</span></div>
+      <div class="sans" style="font-size:11px;color:#78716c;margin-top:3px">External footprint perimeter</div>
+    </div>
+    <div style="background:white;border:1px solid #e7e5e4;border-radius:14px;padding:18px 20px">
+      <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;margin-bottom:6px">Ceiling height</div>
+      <div style="font-size:28px;font-weight:600;letter-spacing:-.02em">2.7<span style="font-size:16px;font-weight:400;color:#78716c"> m</span></div>
+      <div class="sans" style="font-size:11px;color:#78716c;margin-top:3px">Confirmed by you</div>
+    </div>
+  </div>
+
+  <!-- Structure -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>Structure &amp; substructure</h2>
+        <div class="sans" style="font-size:12px;color:#78716c;margin-top:3px">Foundations, concrete, blockwork</div>
+      </div>
+      <span class="chip-blue">12 items</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:36%">Element</th>
+          <th>Unit</th>
+          <th class="r">Quantity</th>
+          <th class="r">Confidence</th>
+          <th>Note</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Strip foundation excavation</td><td>m³</td><td class="r">14.6</td><td class="r"><span class="conf-badge cb-high">96%</span></td><td class="sans" style="font-size:12px;color:#78716c">Standard 450×900mm strip</td></tr>
+          <tr><td>Mass concrete fill C20</td><td>m³</td><td class="r">6.2</td><td class="r"><span class="conf-badge cb-high">94%</span></td><td class="sans" style="font-size:12px;color:#78716c">Foundation fill</td></tr>
+          <tr><td>External facing brickwork</td><td>m²</td><td class="r">38.4</td><td class="r"><span class="conf-badge cb-high">96%</span></td><td class="sans" style="font-size:12px;color:#78716c">To DPC and above</td></tr>
+          <tr><td>Cavity blockwork (inner leaf)</td><td>m²</td><td class="r">36.8</td><td class="r"><span class="conf-badge cb-high">91%</span></td><td class="sans" style="font-size:12px;color:#78716c">140mm dense block</td></tr>
+          <tr><td>Cavity wall insulation</td><td>m²</td><td class="r">36.8</td><td class="r"><span class="conf-badge cb-mid">82%</span></td><td class="sans" style="font-size:12px;color:#78716c;color:#92400e">Reviewed — cavity confirmed 100mm</td></tr>
+          <tr><td>Wall ties (cavity)</td><td>nr</td><td class="r">294</td><td class="r"><span class="conf-badge cb-high">95%</span></td><td class="sans" style="font-size:12px;color:#78716c">At 900mm ctrs horizontal</td></tr>
+          <tr><td>DPC 100mm horizontal</td><td>m</td><td class="r">19.4</td><td class="r"><span class="conf-badge cb-high">97%</span></td><td class="sans" style="font-size:12px;color:#78716c">Full perimeter</td></tr>
+          <tr><td>Oversite concrete 100mm C25</td><td>m²</td><td class="r">24.2</td><td class="r"><span class="conf-badge cb-high">93%</span></td><td class="sans" style="font-size:12px;color:#78716c">Ground floor slab</td></tr>
+          <tr><td>Sand blinding</td><td>m²</td><td class="r">24.2</td><td class="r"><span class="conf-badge cb-high">93%</span></td><td class="sans" style="font-size:12px;color:#78716c">50mm layer below slab</td></tr>
+          <tr><td>Damp proof membrane</td><td>m²</td><td class="r">28.6</td><td class="r"><span class="conf-badge cb-high">92%</span></td><td class="sans" style="font-size:12px;color:#78716c">1200 gauge polythene</td></tr>
+          <tr><td>Structural steel — RSJ beam</td><td>m</td><td class="r">4.2</td><td class="r"><span class="conf-badge cb-low">68%</span></td><td class="sans" style="font-size:12px;color:#991b1b">Corrected by you — confirmed from SE calcs</td></tr>
+          <tr><td>Steel padstones</td><td>nr</td><td class="r">2</td><td class="r"><span class="conf-badge cb-high">90%</span></td><td class="sans" style="font-size:12px;color:#78716c">Engineering brick padstones</td></tr>
+          <tr class="section-total"><td colspan="2">Section total</td><td class="r" colspan="3" style="font-family:'Manrope',sans-serif;text-align:right;font-size:13px;color:#1c1917">12 measured elements</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Roof -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>Roof</h2>
+        <div class="sans" style="font-size:12px;color:#78716c;margin-top:3px">Structure, covering, insulation, glazing</div>
+      </div>
+      <span class="chip-blue">8 items</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:36%">Element</th><th>Unit</th><th class="r">Quantity</th><th class="r">Confidence</th><th>Note</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Roof area (flat/low pitch)</td><td>m²</td><td class="r">24.2</td><td class="r"><span class="conf-badge cb-high">96%</span></td><td class="sans" style="font-size:12px;color:#78716c">Gross including overhang</td></tr>
+          <tr><td>Timber flat roof joists 200×50mm</td><td>m</td><td class="r">86.4</td><td class="r"><span class="conf-badge cb-high">91%</span></td><td class="sans" style="font-size:12px;color:#78716c">At 400mm centres</td></tr>
+          <tr><td>Roof deck — 18mm OSB</td><td>m²</td><td class="r">24.2</td><td class="r"><span class="conf-badge cb-high">93%</span></td><td class="sans" style="font-size:12px;color:#78716c">Structural decking</td></tr>
+          <tr><td>PIR insulation 150mm above deck</td><td>m²</td><td class="r">24.2</td><td class="r"><span class="conf-badge cb-mid">84%</span></td><td class="sans" style="font-size:12px;color:#92400e">Reviewed — depth increased to meet U-value</td></tr>
+          <tr><td>EPDM membrane — single ply</td><td>m²</td><td class="r">27.8</td><td class="r"><span class="conf-badge cb-high">94%</span></td><td class="sans" style="font-size:12px;color:#78716c">Includes upstands &amp; drips</td></tr>
+          <tr><td>Roof light / glass element</td><td>m²</td><td class="r">12.6</td><td class="r"><span class="conf-badge cb-mid">78%</span></td><td class="sans" style="font-size:12px;color:#92400e">Reviewed — exact panel count confirmed</td></tr>
+          <tr><td>Fascia / soffit boards</td><td>m</td><td class="r">19.4</td><td class="r"><span class="conf-badge cb-high">91%</span></td><td class="sans" style="font-size:12px;color:#78716c">PVC-u system</td></tr>
+          <tr><td>Guttering &amp; downpipes</td><td>m</td><td class="r">14.2</td><td class="r"><span class="conf-badge cb-high">89%</span></td><td class="sans" style="font-size:12px;color:#78716c">Including outlets</td></tr>
+          <tr class="section-total"><td colspan="2">Section total</td><td class="r" colspan="3" style="font-family:'Manrope',sans-serif;text-align:right;font-size:13px;color:#1c1917">8 measured elements</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Openings -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>Openings — doors &amp; glazing</h2>
+        <div class="sans" style="font-size:12px;color:#78716c;margin-top:3px">Bifold doors, windows, lintels</div>
+      </div>
+      <span class="chip-blue">6 items</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:36%">Element</th><th>Unit</th><th class="r">Quantity</th><th class="r">Confidence</th><th>Note</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Bifold door opening — width</td><td>m</td><td class="r">4.2</td><td class="r"><span class="conf-badge cb-high">97%</span></td><td class="sans" style="font-size:12px;color:#78716c">4-panel aluminium system</td></tr>
+          <tr><td>Bifold door opening — height</td><td>m</td><td class="r">2.1</td><td class="r"><span class="conf-badge cb-high">95%</span></td><td class="sans" style="font-size:12px;color:#78716c">Floor to head</td></tr>
+          <tr><td>Lintel over bifolds</td><td>m</td><td class="r">4.4</td><td class="r"><span class="conf-badge cb-high">93%</span></td><td class="sans" style="font-size:12px;color:#78716c">100mm bearing each end</td></tr>
+          <tr><td>Internal doorway to existing house</td><td>nr</td><td class="r">1</td><td class="r"><span class="conf-badge cb-high">98%</span></td><td class="sans" style="font-size:12px;color:#78716c">900mm clear opening</td></tr>
+          <tr><td>Side window — fixed pane</td><td>m²</td><td class="r">1.8</td><td class="r"><span class="conf-badge cb-mid">76%</span></td><td class="sans" style="font-size:12px;color:#92400e">Reviewed — south elevation confirmed</td></tr>
+          <tr><td>Window lintel</td><td>m</td><td class="r">1.4</td><td class="r"><span class="conf-badge cb-high">91%</span></td><td class="sans" style="font-size:12px;color:#78716c">100mm bearing each end</td></tr>
+          <tr class="section-total"><td colspan="2">Section total</td><td class="r" colspan="3" style="font-family:'Manrope',sans-serif;text-align:right;font-size:13px;color:#1c1917">6 measured elements</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Internal finishes -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>Internal finishes</h2>
+        <div class="sans" style="font-size:12px;color:#78716c;margin-top:3px">Plasterboard, skim, floor screed, decoration</div>
+      </div>
+      <span class="chip-blue">7 items</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:36%">Element</th><th>Unit</th><th class="r">Quantity</th><th class="r">Confidence</th><th>Note</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Plasterboard — walls</td><td>m²</td><td class="r">48.6</td><td class="r"><span class="conf-badge cb-high">94%</span></td><td class="sans" style="font-size:12px;color:#78716c">12.5mm standard both faces</td></tr>
+          <tr><td>Plasterboard — ceiling</td><td>m²</td><td class="r">24.2</td><td class="r"><span class="conf-badge cb-high">93%</span></td><td class="sans" style="font-size:12px;color:#78716c">12.5mm with vapour check</td></tr>
+          <tr><td>Skim coat plaster — walls</td><td>m²</td><td class="r">48.6</td><td class="r"><span class="conf-badge cb-high">94%</span></td><td class="sans" style="font-size:12px;color:#78716c">2mm finish coat</td></tr>
+          <tr><td>Skim coat plaster — ceiling</td><td>m²</td><td class="r">24.2</td><td class="r"><span class="conf-badge cb-high">93%</span></td><td class="sans" style="font-size:12px;color:#78716c">2mm finish coat</td></tr>
+          <tr><td>Floor screed 65mm</td><td>m²</td><td class="r">24.2</td><td class="r"><span class="conf-badge cb-high">92%</span></td><td class="sans" style="font-size:12px;color:#78716c">Liquid screed — UFH zone</td></tr>
+          <tr><td>Emulsion decoration — walls &amp; ceiling</td><td>m²</td><td class="r">72.8</td><td class="r"><span class="conf-badge cb-high">96%</span></td><td class="sans" style="font-size:12px;color:#78716c">2 coats mist + finish</td></tr>
+          <tr><td>Skirting boards</td><td>m</td><td class="r">19.4</td><td class="r"><span class="conf-badge cb-high">91%</span></td><td class="sans" style="font-size:12px;color:#78716c">MDF 95×18mm painted</td></tr>
+          <tr class="section-total"><td colspan="2">Section total</td><td class="r" colspan="3" style="font-family:'Manrope',sans-serif;text-align:right;font-size:13px;color:#1c1917">7 measured elements</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MEP -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>Mechanical, electrical &amp; plumbing</h2>
+        <div class="sans" style="font-size:12px;color:#78716c;margin-top:3px">First and second fix — derived from room schedule</div>
+      </div>
+      <span class="chip-blue">6 items</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:36%">Element</th><th>Unit</th><th class="r">Quantity</th><th class="r">Confidence</th><th>Note</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Electrical circuits — new</td><td>nr</td><td class="r">4</td><td class="r"><span class="conf-badge cb-mid">80%</span></td><td class="sans" style="font-size:12px;color:#92400e">Reviewed — layout from room plan</td></tr>
+          <tr><td>Double socket outlets</td><td>nr</td><td class="r">14</td><td class="r"><span class="conf-badge cb-mid">78%</span></td><td class="sans" style="font-size:12px;color:#92400e">Reviewed — kitchen zone count confirmed</td></tr>
+          <tr><td>Downlights (recessed)</td><td>nr</td><td class="r">12</td><td class="r"><span class="conf-badge cb-high">88%</span></td><td class="sans" style="font-size:12px;color:#78716c">At 1.2m grid</td></tr>
+          <tr><td>UFH pipework</td><td>m²</td><td class="r">24.2</td><td class="r"><span class="conf-badge cb-high">91%</span></td><td class="sans" style="font-size:12px;color:#78716c">Full floor area</td></tr>
+          <tr><td>UFH manifold &amp; controls</td><td>nr</td><td class="r">1</td><td class="r"><span class="conf-badge cb-high">96%</span></td><td class="sans" style="font-size:12px;color:#78716c">Single zone</td></tr>
+          <tr><td>Boiler extension — pipework run</td><td>m</td><td class="r">8.4</td><td class="r"><span class="conf-badge cb-mid">76%</span></td><td class="sans" style="font-size:12px;color:#92400e">Reviewed — route from plant room</td></tr>
+          <tr class="section-total"><td colspan="2">Section total</td><td class="r" colspan="3" style="font-family:'Manrope',sans-serif;text-align:right;font-size:13px;color:#1c1917">6 measured elements</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Totals -->
+  <div style="background:linear-gradient(135deg,#1c1917 0%,#292524 60%,#78350f 100%);border-radius:18px;padding:28px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:rgba(251,191,36,.15);border-radius:999px;filter:blur(50px)"></div>
+    <div style="position:relative">
+      <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:#fcd34d;font-weight:600;margin-bottom:6px">Measured elements</div>
+      <div style="font-size:32px;font-weight:600;color:white;letter-spacing:-.02em">39 items</div>
+      <div class="sans" style="font-size:12px;color:#a8a29e;margin-top:4px">Across 5 sections · 34 high confidence · 5 reviewed</div>
+    </div>
+    <div style="position:relative">
+      <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:#fcd34d;font-weight:600;margin-bottom:6px">Coverage</div>
+      <div style="font-size:32px;font-weight:600;color:white;letter-spacing:-.02em">97%</div>
+      <div class="sans" style="font-size:12px;color:#a8a29e;margin-top:4px">Of standard extension elements captured</div>
+    </div>
+    <div style="position:relative">
+      <a href="budget-pricing.html" class="sans" style="background:white;color:#1c1917;padding:14px 24px;border-radius:12px;font-size:14px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:8px">
+        See budget pricing
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- DEMO NAV -->
+<div id="bb-demo-nav" style="position:fixed;bottom:16px;right:16px;z-index:1000;font-family:'Manrope',sans-serif">
+  <details>
+    <summary style="background:#1c1917;color:white;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Demo · jump to
+    </summary>
+    <div style="background:#1c1917;border-radius:12px;padding:8px;max-width:260px;max-height:60vh;overflow-y:auto;margin-top:4px;box-shadow:0 12px 32px -8px rgba(0,0,0,.4)">
+      <a href="index.html" style="display:block;padding:6px 10px;color:#fcd34d;font-size:12px;border-radius:6px;text-decoration:none">⌂ Demo home</a>
+      <a href="homeowner-dashboard.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Dashboard</a>
+      <a href="project-workspace.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Project Workspace</a>
+      <a href="measurement-review.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Measurement review</a>
+      <a href="sketch-upload.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Upload sketch</a>
+      <a href="project-vault.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Project vault</a>
+      <a href="quantity-summary.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Quantity summary</a>
+      <a href="send-enquiry.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Send enquiry</a>
+      <a href="budget-pricing.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Budget pricing</a>
+      <a href="material-selection.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Material selection</a>
+      <a href="homeowner-comparison.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Compare quotes</a>
+    </div>
+  </details>
+</div>
+
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(e){console.warn('[PWA]',e);});});}
+</script>
+</body>
+</html>

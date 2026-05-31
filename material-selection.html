@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1c1917">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Build-Budget">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Build-Budget">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+<title>Build-Budget — Material Selection</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Fraunces',Georgia,serif;background:#faf7f2;color:#1c1917;display:flex;flex-direction:column;min-height:100vh}
+.sans{font-family:'Manrope',sans-serif}
+.app-shell{display:flex;flex:1;min-height:0;overflow:hidden}
+.sidebar{width:268px;flex-shrink:0;background:white;border-right:1px solid #e7e5e4;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-scroll{flex:1;overflow-y:auto;padding:6px}
+.main{flex:1;overflow-y:auto}
+.main-inner{padding:28px 32px 130px;max-width:900px}
+.topbar{background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid #e7e5e4;flex-shrink:0}
+.topbar-inner{padding:11px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+/* Category nav */
+.cat-btn{width:100%;padding:9px 11px;background:transparent;border:none;border-radius:8px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:9px;margin-bottom:2px;transition:background .15s}
+.cat-btn:hover{background:#f5f5f4}
+.cat-btn.active{background:#1c1917}
+.cat-btn.active .cn{color:white}
+.cat-btn.active .cq{color:#d6d3d1}
+.cat-btn.active .cprice{color:#fde68a}
+.cat-btn.active .cdot{background:#fde68a}
+.cat-btn.done .cdot{background:#047857}
+.cdot{width:8px;height:8px;border-radius:999px;background:#d6d3d1;flex-shrink:0;transition:background .2s}
+.cn{font-family:'Manrope',sans-serif;font-size:13px;font-weight:600;color:#44403c;flex:1}
+.cq{font-family:'Manrope',sans-serif;font-size:10px;color:#78716c}
+.cprice{font-family:'Manrope',sans-serif;font-size:11px;font-weight:700;color:#1c1917;flex-shrink:0}
+/* Chips */
+.chip{font-family:'Manrope',sans-serif;font-size:12px;padding:6px 12px;border-radius:999px;border:1.5px solid #e7e5e4;background:white;color:#44403c;cursor:pointer;font-weight:500;transition:all .15s;white-space:nowrap}
+.chip:hover{border-color:#1c1917}
+.chip.active{background:#1c1917;color:white;border-color:#1c1917}
+/* Product cards */
+.pcard{background:white;border:2px solid #e7e5e4;border-radius:16px;padding:16px;display:flex;gap:14px;align-items:center;cursor:pointer;transition:all .18s;position:relative}
+.pcard:hover{border-color:#a8a29e;box-shadow:0 6px 18px -6px rgba(0,0,0,.1);transform:translateY(-1px)}
+.pcard.sel{border-color:#1c1917;box-shadow:0 8px 24px -8px rgba(0,0,0,.15)}
+.pthumb{width:76px;height:76px;border-radius:10px;flex-shrink:0}
+.pick-btn{font-family:'Manrope',sans-serif;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;border:1.5px solid #e7e5e4;background:white;color:#1c1917;cursor:pointer;white-space:nowrap;transition:all .15s}
+.pick-btn:hover{border-color:#1c1917}
+.pick-btn.on{background:#1c1917;color:white;border-color:#1c1917}
+.save-pill{font-size:9px;padding:2px 5px;background:#dcfce7;color:#047857;border-radius:4px;font-weight:700}
+.badge{font-size:9px;padding:2px 6px;border-radius:999px;font-weight:600;font-family:'Manrope',sans-serif}
+.br{background:#fef3c7;color:#92400e}
+.bs{background:#f5f5f4;color:#44403c}
+.bb{background:#eff6ff;color:#1e3a8a}
+.ribbon{position:absolute;top:-1px;left:14px;background:#1c1917;color:white;padding:3px 9px;border-radius:0 0 8px 8px;font-size:9px;font-weight:700;font-family:'Manrope',sans-serif;text-transform:uppercase;letter-spacing:.08em}
+.ribbon.rec{background:#b45309}
+/* Bottom bar */
+.bbar{position:fixed;bottom:0;left:0;right:0;z-index:30;background:#1c1917;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.btn-done{font-family:'Manrope',sans-serif;background:white;color:#1c1917;padding:11px 20px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;text-decoration:none}
+.ssrow{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:#fafaf9;border:1.5px dashed #d6d3d1;border-radius:12px;margin-top:6px}
+@media(max-width:760px){.sidebar{display:none}.main-inner{padding:18px 14px 130px}}
+@media(max-width:430px){h1{font-size:22px!important;line-height:1.1!important}#bb-demo-nav{bottom:74px!important;right:10px!important}.bbar{padding:10px 14px}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div style="display:flex;align-items:center;gap:12px">
+      <a href="project-workspace.html" class="sans" style="font-size:13px;color:#78716c;text-decoration:none;display:flex;align-items:center;gap:5px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>Project
+      </a>
+      <div style="height:18px;width:1px;background:#e7e5e4"></div>
+      <div style="font-size:17px;font-weight:600;letter-spacing:-.02em">Build-Budget</div>
+      <span class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#44403c;padding:3px 8px;background:#f5f5f4;border-radius:999px;font-weight:600">Materials</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="sans" style="font-size:12px;color:#78716c" id="top-prog">0 of 7 done</div>
+      <div style="width:32px;height:32px;border-radius:999px;background:#fde68a;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px">JW</div>
+    </div>
+  </div>
+</header>
+
+<div class="app-shell">
+
+<aside class="sidebar">
+  <div style="padding:14px 14px 8px">
+    <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;margin-bottom:2px">Rear extension</div>
+    <div style="font-size:15px;font-weight:500;letter-spacing:-.01em">Pick your materials</div>
+  </div>
+  <div class="sidebar-scroll" id="cat-nav"></div>
+  <div style="padding:12px 14px;border-top:1px solid #e7e5e4">
+    <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;margin-bottom:4px">Materials so far</div>
+    <div style="font-size:24px;font-weight:600;letter-spacing:-.02em" id="sb-total">£0</div>
+    <div class="sans" style="font-size:11px;color:#047857;font-weight:600;margin-top:2px" id="sb-saving">Saving £0 via Build-Budget</div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="main-inner" id="main"></div>
+</main>
+</div>
+
+<div class="bbar">
+  <div>
+    <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#fcd34d;margin-bottom:2px">Materials total</div>
+    <div style="font-size:22px;font-weight:600;color:white;letter-spacing:-.02em" id="b-total">£0</div>
+    <div class="sans" style="font-size:11px;color:#6ee7b7" id="b-saving">Saving £0 vs trade list</div>
+  </div>
+  <a href="project-workspace.html" class="btn-done">Done — back to project
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </a>
+</div>
+
+<div id="bb-demo-nav" style="position:fixed;bottom:74px;right:16px;z-index:1000;font-family:'Manrope',sans-serif">
+  <details>
+    <summary style="background:#1c1917;color:white;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Demo · jump to
+    </summary>
+    <div style="background:#1c1917;border-radius:12px;padding:8px;max-width:260px;max-height:55vh;overflow-y:auto;margin-top:4px;box-shadow:0 12px 32px -8px rgba(0,0,0,.4)">
+      <a href="index.html" style="display:block;padding:6px 10px;color:#fcd34d;font-size:12px;border-radius:6px;text-decoration:none">⌂ Demo home</a>
+      <a href="homeowner-dashboard.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Dashboard</a>
+      <a href="my-projects.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">My Projects</a>
+      <a href="project-workspace.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Project Workspace</a>
+      <a href="measurement-review.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Measurement review</a>
+      <a href="sketch-upload.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Upload sketch</a>
+      <a href="project-vault.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Project vault</a>
+      <a href="quantity-summary.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Quantity summary</a>
+      <a href="send-enquiry.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Send enquiry</a>
+      <a href="budget-pricing.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Budget pricing</a>
+      <a href="material-selection.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Material selection</a>
+      <a href="homeowner-comparison.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Compare quotes</a>
+      <a href="find-a-pro.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Find a Pro</a>
+      <a href="settings.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Settings</a>
+      <a href="contractor-dashboard.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Contractor dashboard</a>
+    </div>
+  </details>
+</div>
+
+<script>
+const CATS=[
+  {id:'bricks',name:'Facing brick',qty:'2,400 units',merchants:['All merchants','Travis Perkins','Jewson','Selco'],sel:1,
+   prods:[
+    {id:'ib1',name:'Ibstock Tradesman Antique',detail:'Wirecut · 65mm · Multi-buff',merchant:'Travis Perkins',rating:4.6,rev:124,badge:'In stock',bc:'bs',price:64.2,rrp:78,unit:'per 100',tot:1541,totRRP:1872,
+     thumb:'repeating-linear-gradient(0deg,#c8a989 0,#c8a989 8px,#b8997a 8px,#b8997a 12px)'},
+    {id:'fc2',name:'Forterra Cradley Mixed Russet',detail:'Wirecut · 65mm · Russet blend',merchant:'Jewson',rating:4.8,rev:89,badge:'Best for extensions',bc:'br',rec:true,price:75.6,rrp:92,unit:'per 100',tot:1814,totRRP:2208,
+     thumb:'repeating-linear-gradient(0deg,#a87856 0,#a87856 8px,#8b6244 8px,#8b6244 12px)'},
+    {id:'wb3',name:'Wienerberger Tradition Buff',detail:'Wirecut · 65mm · Sandfaced',merchant:'Selco',rating:4.5,rev:56,badge:'In stock',bc:'bs',price:73.8,rrp:88,unit:'per 100',tot:1771,totRRP:2112,
+     thumb:'repeating-linear-gradient(0deg,#d4b896 0,#d4b896 8px,#c4a886 8px,#c4a886 12px)'},
+    {id:'kb4',name:'Ketley Staffordshire Blue',detail:'Engineering · 65mm · Smooth blue',merchant:'Travis Perkins',rating:4.7,rev:41,badge:'Limited stock',bc:'br',price:82.4,rrp:98,unit:'per 100',tot:1978,totRRP:2352,
+     thumb:'repeating-linear-gradient(0deg,#5c6b8a 0,#5c6b8a 8px,#4a5a7a 8px,#4a5a7a 12px)'},
+   ]},
+  {id:'rooftile',name:'Roof tile',qty:'28 m²',merchants:['All merchants','Travis Perkins','Jewson','Buildbase'],sel:0,done:true,
+   prods:[
+    {id:'rt1',name:'Marley Modern Concrete Tile',detail:'Concrete · Smooth grey · 420×330mm',merchant:'Travis Perkins',rating:4.7,rev:312,badge:'Recommended',bc:'br',rec:true,price:42,rrp:51,unit:'per m²',tot:1176,totRRP:1428,
+     thumb:'repeating-linear-gradient(135deg,#9ca3af 0,#9ca3af 6px,#6b7280 6px,#6b7280 12px)'},
+    {id:'rt2',name:'Redland 49 Plain Tile',detail:'Clay · Natural red · 268×165mm',merchant:'Jewson',rating:4.8,rev:204,badge:'In stock',bc:'bs',price:54,rrp:64,unit:'per m²',tot:1512,totRRP:1792,
+     thumb:'repeating-linear-gradient(135deg,#b45309 0,#b45309 6px,#92400e 6px,#92400e 12px)'},
+    {id:'rt3',name:'Wienerberger Plain Wave Tile',detail:'Clay · Dark brindle · 265×165mm',merchant:'Buildbase',rating:4.6,rev:98,badge:'In stock',bc:'bs',price:61,rrp:74,unit:'per m²',tot:1708,totRRP:2072,
+     thumb:'repeating-linear-gradient(135deg,#57534e 0,#57534e 6px,#44403c 6px,#44403c 12px)'},
+   ]},
+  {id:'insulation',name:'Wall insulation',qty:'64 m²',merchants:['All merchants','Selco','Travis Perkins','Wickes'],sel:0,done:true,
+   prods:[
+    {id:'in1',name:'Celotex GA4000 100mm PIR',detail:'PIR rigid board · U-value 0.20 · 1200×2400mm',merchant:'Selco',rating:4.9,rev:876,badge:'Best U-value',bc:'bb',rec:true,price:28.9,rrp:34,unit:'per board',tot:896,totRRP:1054,
+     thumb:'linear-gradient(135deg,#fbbf24,#f59e0b)'},
+    {id:'in2',name:'Kingspan Kooltherm K108 80mm',detail:'Phenolic board · U-value 0.19 · 1200×2400mm',merchant:'Travis Perkins',rating:4.8,rev:542,badge:'Premium',bc:'br',price:36.5,rrp:44,unit:'per board',tot:1131,totRRP:1364,
+     thumb:'linear-gradient(135deg,#059669,#047857)'},
+    {id:'in3',name:'Rockwool RWA45 50mm Slab',detail:'Mineral wool · Non-combustible · 600×1000mm',merchant:'Wickes',rating:4.6,rev:289,badge:'In stock',bc:'bs',price:14.2,rrp:17,unit:'per slab',tot:682,totRRP:816,
+     thumb:'linear-gradient(135deg,#78716c,#57534e)'},
+   ]},
+  {id:'plasterboard',name:'Plasterboard',qty:'48 sheets',merchants:['All merchants','Travis Perkins','Selco','Jewson'],sel:null,
+   prods:[
+    {id:'pb1',name:'British Gypsum Gyproc Standard 12.5mm',detail:'Standard · 2400×1200mm · Grey face',merchant:'Travis Perkins',rating:4.8,rev:1204,badge:'Trade favourite',bc:'br',rec:true,price:8.4,rrp:10,unit:'per sheet',tot:403,totRRP:480,
+     thumb:'linear-gradient(135deg,#e5e7eb,#d1d5db)'},
+    {id:'pb2',name:'British Gypsum Gyproc Moisture 12.5mm',detail:'Moisture-resistant · 2400×1200mm · Green face',merchant:'Selco',rating:4.7,rev:612,badge:'Wet areas',bc:'bb',price:11.2,rrp:13.5,unit:'per sheet',tot:538,totRRP:648,
+     thumb:'linear-gradient(135deg,#bbf7d0,#86efac)'},
+    {id:'pb3',name:'Lafarge Siniat 15mm Soundboard',detail:'Acoustic · 2400×1200mm · Enhanced mass',merchant:'Jewson',rating:4.6,rev:287,badge:'In stock',bc:'bs',price:14.6,rrp:17.5,unit:'per sheet',tot:701,totRRP:840,
+     thumb:'linear-gradient(135deg,#c4b5fd,#a78bfa)'},
+   ]},
+  {id:'timber',name:'Structural timber',qty:'180 m',merchants:['All merchants','Jewson','Travis Perkins','Buildbase'],sel:null,
+   prods:[
+    {id:'t1',name:'Regularised C16 Joist 47×150mm',detail:'Strength grade C16 · 4.8m · Treated',merchant:'Jewson',rating:4.7,rev:342,badge:'In stock',bc:'bs',rec:true,price:9.8,rrp:11.8,unit:'per metre',tot:1764,totRRP:2124,
+     thumb:'repeating-linear-gradient(90deg,#d4a96a 0,#d4a96a 4px,#c49a5a 4px,#c49a5a 8px)'},
+    {id:'t2',name:'Treated C24 Timber 47×100mm',detail:'Strength grade C24 · 4.8m · Green treated',merchant:'Travis Perkins',rating:4.8,rev:198,badge:'Higher grade',bc:'bb',price:7.2,rrp:8.6,unit:'per metre',tot:1296,totRRP:1548,
+     thumb:'repeating-linear-gradient(90deg,#86efac 0,#86efac 4px,#4ade80 4px,#4ade80 8px)'},
+   ]},
+  {id:'paint',name:'Emulsion paint',qty:'~22 litres',merchants:['All merchants','Dulux','Farrow & Ball','Crown','Wickes'],sel:null,
+   prods:[
+    {id:'dp1',name:'Dulux Trade Diamond Matt',detail:'Brilliant white · Scrubbable · 10L',merchant:'Dulux',rating:4.8,rev:2841,badge:'Trade bestseller',bc:'br',rec:true,price:28,rrp:38,unit:'per 10L',tot:56,totRRP:76,
+     thumb:'linear-gradient(135deg,#f8fafc,#e2e8f0)'},
+    {id:'dp2',name:'Dulux Trade Vinyl Matt 10L',detail:'Pure brilliant white · Standard sheen · 10L',merchant:'Dulux',rating:4.6,rev:1654,badge:'In stock',bc:'bs',price:21,rrp:28,unit:'per 10L',tot:42,totRRP:56,
+     thumb:'linear-gradient(135deg,#f1f5f9,#cbd5e1)'},
+    {id:'fb1',name:'Farrow & Ball Estate Emulsion',detail:"Dead flat · Fully pigmented · 2.5L per tin",merchant:'Farrow & Ball',rating:4.9,rev:986,badge:'Premium finish',bc:'bb',price:48,rrp:59,unit:'per 2.5L',tot:384,totRRP:472,
+     thumb:'linear-gradient(135deg,#fde68a,#fbbf24)'},
+    {id:'fb2',name:"Farrow & Ball Modern Emulsion 'Elephant's Breath'",detail:'Warm grey · Dead flat · 5L',merchant:'Farrow & Ball',rating:4.9,rev:743,badge:'Popular colour',bc:'br',price:74,rrp:90,unit:'per 5L',tot:296,totRRP:360,
+     thumb:'linear-gradient(135deg,#d6d3d1,#a8a29e)'},
+    {id:'cr1',name:'Crown Trade Clean Extreme Matt',detail:'Brilliant white · Anti-scuff · 10L',merchant:'Crown',rating:4.7,rev:891,badge:'Anti-scuff',bc:'bb',price:24,rrp:31,unit:'per 10L',tot:48,totRRP:62,
+     thumb:'linear-gradient(135deg,#eff6ff,#bfdbfe)'},
+    {id:'wk1',name:'Wickes Trade Vinyl Matt White',detail:'Brilliant white · 10L · Good coverage',merchant:'Wickes',rating:4.3,rev:487,badge:'Best value',bc:'bs',price:14,rrp:19,unit:'per 10L',tot:28,totRRP:38,
+     thumb:'linear-gradient(135deg,#fafafa,#e5e7eb)'},
+   ]},
+  {id:'bathroom',name:'Bathroom',qty:'Suite + fittings',merchants:['All merchants','Wickes','Victorian Plumbing','Bathstore','Screwfix'],sel:null,multi:true,
+   prods:[
+    {id:'ba1',name:'Ideal Standard Tempo Arc Suite',detail:'Close-coupled WC + full pedestal basin · White',merchant:'Wickes',rating:4.7,rev:684,badge:'Recommended',bc:'br',rec:true,price:449,rrp:589,unit:'suite',tot:449,totRRP:589,
+     thumb:'linear-gradient(135deg,#f0f9ff,#e0f2fe)'},
+    {id:'ba2',name:'Duchy Freestanding Bath 1700mm',detail:'Double-ended slipper bath · White acrylic · Includes waste',merchant:'Victorian Plumbing',rating:4.8,rev:412,badge:'Premium',bc:'bb',price:649,rrp:849,unit:'each',tot:649,totRRP:849,
+     thumb:'linear-gradient(135deg,#fefce8,#fef9c3)'},
+    {id:'ba3',name:'Bathstore Beaumont P-Shape Bath 1700mm',detail:'Left-hand · Includes shower screen',merchant:'Bathstore',rating:4.6,rev:231,badge:'Space-saving',bc:'bs',price:389,rrp:499,unit:'suite',tot:389,totRRP:499,
+     thumb:'linear-gradient(135deg,#e0e7ff,#c7d2fe)'},
+    {id:'ba4',name:'RAK Feeling Rimless WC & Basin Set',detail:'Back-to-wall rimless WC · 560mm basin · Soft close',merchant:'Victorian Plumbing',rating:4.8,rev:329,badge:'Easy clean',bc:'bb',price:534,rrp:698,unit:'set',tot:534,totRRP:698,
+     thumb:'linear-gradient(135deg,#ecfdf5,#d1fae5)'},
+    {id:'ba5',name:'Triton T80Z 10.5kW Electric Shower',detail:'Chrome · Touch-button · Fits most pressures',merchant:'Screwfix',rating:4.5,rev:1204,badge:'Bestseller',bc:'br',price:169,rrp:219,unit:'each',tot:169,totRRP:219,
+     thumb:'linear-gradient(135deg,#e2e8f0,#94a3b8)'},
+    {id:'ba6',name:'Reyna Wall & Floor Tiles — 10m² pack',detail:'White gloss · 300×600mm · 10m² pack',merchant:'Wickes',rating:4.4,rev:564,badge:'Per 10m² pack',bc:'bs',price:84,rrp:109,unit:'per 10m²',tot:252,totRRP:327,
+     thumb:'repeating-linear-gradient(0deg,#f8fafc 0,#f8fafc 6px,#e2e8f0 6px,#e2e8f0 7px)'},
+   ]},
+];
+
+// STATE
+let activeCat=0, activeFilter='All merchants';
+const sel={};
+// Pre-select defaults
+CATS.forEach(c=>{if(c.sel!==null&&c.sel!==undefined)sel[c.prods[c.sel].id]=true;});
+
+function getPicked(ci){return CATS[ci].prods.filter(p=>sel[p.id]);}
+function fmtGBP(v){return v>=100?'£'+Math.round(v).toLocaleString('en-GB'):'£'+v.toFixed(2).replace(/\.00$/,'');}
+
+function calcTotals(){
+  let tot=0,sav=0;
+  CATS.forEach((c,ci)=>{
+    getPicked(ci).forEach(p=>{tot+=p.tot;sav+=(p.totRRP-p.tot);});
+  });
+  return{tot,sav};
+}
+function countDone(){
+  return CATS.filter((c,ci)=>getPicked(ci).length>0||c.selfSourced).length;
+}
+
+function renderSidebar(){
+  document.getElementById('cat-nav').innerHTML=CATS.map((c,i)=>{
+    const picked=getPicked(i);
+    const done=picked.length>0;
+    const active=i===activeCat;
+    const priceTotal=picked.reduce((a,p)=>a+p.tot,0);
+    return`<button class="cat-btn${done?' done':''}${active?' active':''}" onclick="switchCat(${i})">
+      <span class="cdot"></span>
+      <span class="cn">${c.name}</span>
+      <span class="cq">${c.qty}</span>
+      ${done?`<span class="cprice">${fmtGBP(priceTotal)}</span>`:''}
+    </button>`;
+  }).join('');
+  const{tot,sav}=calcTotals();
+  document.getElementById('sb-total').textContent=fmtGBP(tot);
+  document.getElementById('sb-saving').textContent=`Saving ${fmtGBP(sav)} via Build-Budget`;
+}
+
+function descMap(){return{
+  bricks:`You need <strong>2,400 bricks</strong>. Prices include Build-Budget's negotiated trade discounts — typically 17% below merchant list price. `,
+  rooftile:`You need <strong>28 m²</strong> of roof tile. Try to match your existing tile profile and colour for planning consistency. `,
+  insulation:`You need <strong>64 m²</strong> of insulation. Higher PIR values improve your U-value, which may matter for Building Regs sign-off. `,
+  plasterboard:`You need <strong>48 sheets</strong>. Standard for main areas; moisture-resistant near wet areas such as kitchen or utility. `,
+  timber:`You need <strong>180 metres</strong> of structural timber. C16 is adequate for most domestic joists; C24 for more demanding spans. `,
+  paint:`Approximately <strong>22 litres</strong> across all new surfaces. Trade prices are typically 25–30% below DIY store prices. `,
+  bathroom:`<strong>Select as many items as you need</strong> — WC, bath, shower, basin, tiles. Each picks independently. `,
+};}
+
+function renderMain(){
+  const c=CATS[activeCat];
+  const filtered=activeFilter==='All merchants'?c.prods:c.prods.filter(p=>p.merchant===activeFilter);
+  const picked=getPicked(activeCat);
+  const desc=descMap();
+
+  document.getElementById('main').innerHTML=`
+    <div style="margin-bottom:22px">
+      <div class="sans" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em;color:#78716c;margin-bottom:10px;font-weight:600">Step 3 of 5 · Build-Budget Materials</div>
+      <h1 style="font-size:clamp(22px,4vw,34px);font-weight:500;line-height:1.1;letter-spacing:-.02em;color:#1c1917;margin-bottom:10px">Pick your <span style="font-style:italic;color:#b45309">${c.name.toLowerCase()}</span>.</h1>
+      <p class="sans" style="font-size:14px;color:#57534e;max-width:620px;line-height:1.55">${desc[c.id]||''}All prices include Build-Budget trade discounts.</p>
+      ${c.multi?`<div class="sans" style="margin-top:10px;padding:10px 14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;font-size:12px;color:#1e3a8a;display:flex;gap:8px;align-items:start">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>You can select <strong>multiple items</strong> in this category — each is priced and added separately to your materials total.</span>
+      </div>`:''}
+    </div>
+
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px">
+      ${c.merchants.map(m=>`<button class="chip${activeFilter===m?' active':''}" onclick="setFilter('${m.replace(/'/g,"\\'")})">${m}</button>`).join('')}
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+      ${filtered.length===0
+        ?`<div class="sans" style="padding:28px;text-align:center;color:#78716c;background:white;border:1.5px dashed #e7e5e4;border-radius:14px">No products from ${activeFilter} in this category.</div>`
+        :filtered.map(p=>renderCard(p)).join('')
+      }
+    </div>
+
+    <div class="ssrow">
+      <div>
+        <div class="sans" style="font-size:13px;font-weight:600;color:#1c1917">I'll source this myself</div>
+        <div class="sans" style="font-size:12px;color:#78716c;margin-top:2px">No Build-Budget pricing — noted in your project brief.</div>
+      </div>
+      <button class="chip${c.selfSourced?' active':''}" onclick="toggleSS(${activeCat})">${c.selfSourced?'✓ Self-sourcing':'Choose this'}</button>
+    </div>
+  `;
+  updateBars();
+}
+
+function renderCard(p){
+  const isPicked=!!sel[p.id];
+  const disc=Math.round((1-p.price/p.rrp)*100);
+  return`<div class="pcard${isPicked?' sel':''}" onclick="pickProd('${p.id}')" id="card-${p.id}">
+    ${isPicked?'<span class="ribbon">✓ Selected</span>':(p.rec?'<span class="ribbon rec">Recommended</span>':'')}
+    <div class="pthumb" style="background:${p.thumb}"></div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:16px;font-weight:500;letter-spacing:-.01em;color:#1c1917;margin-bottom:2px">${p.name}</div>
+      <div class="sans" style="font-size:12px;color:#78716c;margin-bottom:7px">${p.detail} · ${p.merchant}</div>
+      <div class="sans" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:3px">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="#fbbf24"><polygon points="12 2 15 9 22 9 17 14 19 22 12 18 5 22 7 14 2 9 9 9"/></svg>
+          <strong style="font-size:12px">${p.rating}</strong><span style="font-size:12px;color:#78716c">(${p.rev})</span>
+        </div>
+        <span class="badge ${p.bc}">${p.badge}</span>
+      </div>
+    </div>
+    <div style="text-align:right;flex-shrink:0" class="sans">
+      <div style="display:flex;align-items:baseline;gap:5px;justify-content:flex-end;margin-bottom:2px">
+        <span style="font-family:'Fraunces',serif;font-size:19px;font-weight:600;color:#1c1917">${fmtGBP(p.price)}</span>
+        <span style="font-size:10px;color:#a8a29e;text-decoration:line-through">${fmtGBP(p.rrp)}</span>
+        <span class="save-pill">−${disc}%</span>
+      </div>
+      <div style="font-size:11px;color:#78716c;margin-bottom:5px">${p.unit}</div>
+      <div style="font-family:'Fraunces',serif;font-size:14px;font-weight:600;color:#1c1917;margin-bottom:2px">${fmtGBP(p.tot)} total</div>
+      <div style="font-size:10px;color:#047857;font-weight:600;margin-bottom:7px">Save ${fmtGBP(p.totRRP-p.tot)}</div>
+      <button class="pick-btn${isPicked?' on':''}" onclick="event.stopPropagation();pickProd('${p.id}')">${isPicked?'✓ Picked':'Pick'}</button>
+    </div>
+  </div>`;
+}
+
+function updateBars(){
+  const{tot,sav}=calcTotals();
+  document.getElementById('b-total').textContent=fmtGBP(tot);
+  document.getElementById('b-saving').textContent=`Saving ${fmtGBP(sav)} vs trade list`;
+  document.getElementById('top-prog').textContent=`${countDone()} of ${CATS.length} done`;
+}
+
+function switchCat(i){activeCat=i;activeFilter='All merchants';renderSidebar();renderMain();document.querySelector('.main').scrollTop=0;}
+function setFilter(m){activeFilter=m;renderMain();}
+
+function pickProd(pid){
+  const cat=CATS[activeCat];
+  const isOn=!!sel[pid];
+  if(!cat.multi){
+    // Single-select: deselect all in cat first
+    cat.prods.forEach(p=>{sel[p.id]=false;});
+    cat.selfSourced=false;
+    if(!isOn)sel[pid]=true;
+  }else{
+    // Multi-select: toggle independently
+    sel[pid]=!isOn;
+    if(sel[pid])cat.selfSourced=false;
+  }
+  renderSidebar();renderMain();
+}
+
+function toggleSS(ci){
+  const cat=CATS[ci];
+  cat.selfSourced=!cat.selfSourced;
+  if(cat.selfSourced)cat.prods.forEach(p=>{sel[p.id]=false;});
+  renderSidebar();renderMain();
+}
+
+renderSidebar();renderMain();
+</script>
+
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(e){console.warn('[PWA] SW failed:',e);});});}
+(function(){try{var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;var isStandalone=window.navigator.standalone===true||window.matchMedia('(display-mode: standalone)').matches;var dismissed=localStorage.getItem('bb-ios-install-dismissed');if(isIOS&&!isStandalone&&!dismissed){setTimeout(function(){var h=document.createElement('div');h.style.cssText='position:fixed;bottom:76px;left:16px;right:16px;background:#1c1917;color:white;padding:14px 16px;border-radius:14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 12px 32px -8px rgba(0,0,0,.4);z-index:9999;display:flex;align-items:center;gap:12px;';h.innerHTML='<div style="flex:1">Install Build-Budget — tap <span style="font-size:16px">⎙</span> then <b>Add to Home Screen</b>.</div><button style="background:transparent;border:none;color:#fde68a;font-size:18px;cursor:pointer;padding:4px 8px">✕</button>';h.querySelector('button').onclick=function(){h.remove();try{localStorage.setItem('bb-ios-install-dismissed','1');}catch(e){}};document.body.appendChild(h);},3000);}}catch(e){}})();
+</script>
+</body>
+</html>

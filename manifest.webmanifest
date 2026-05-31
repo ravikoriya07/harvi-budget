@@ -1,0 +1,63 @@
+{
+  "name": "Build-Budget",
+  "short_name": "Build-Budget",
+  "description": "Price, plan and procure your UK home construction project — drawings, materials, contractors, all in one place.",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#1c1917",
+  "background_color": "#faf7f2",
+  "lang": "en-GB",
+  "dir": "ltr",
+  "categories": ["productivity", "business", "lifestyle"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start a new project",
+      "short_name": "New project",
+      "description": "Begin pricing a new project",
+      "url": "/new-project-details.html",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "My projects",
+      "short_name": "Projects",
+      "description": "View your active projects",
+      "url": "/my-projects.html",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "AI Designer",
+      "short_name": "AI Designer",
+      "description": "Generate a concept from a photo",
+      "url": "/ai-designer-capture.html",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

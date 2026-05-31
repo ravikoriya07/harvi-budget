@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1c1917">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Build-Budget">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Build-Budget">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+<title>Build-Budget — New Project</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Fraunces', Georgia, serif; background: #faf7f2; min-height: 100vh; }
+  .font-sans-ui { font-family: 'Manrope', sans-serif; }
+
+  .type-card {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+  .type-card:hover { transform: translateY(-3px); }
+  .type-card.selected {
+    border-color: #1c1917 !important;
+    box-shadow: 0 12px 24px -8px rgba(0,0,0,0.15);
+  }
+  .type-card.selected .type-icon-wrap {
+    background: #1c1917 !important;
+    color: white;
+  }
+  .type-card.selected .type-icon-wrap svg {
+    stroke: white;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: #1c1917 !important;
+    box-shadow: 0 0 0 3px rgba(28,25,23,0.08);
+  }
+
+  .chip {
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .chip.active {
+    background: #1c1917 !important;
+    color: white !important;
+    border-color: #1c1917 !important;
+  }
+
+  @media (max-width: 900px) {
+    .layout-grid { grid-template-columns: 1fr !important; }
+    .type-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .stepper-summary { display: none !important; }
+  }
+  @media (max-width: 560px) {
+    .type-grid { grid-template-columns: 1fr !important; }
+    .two-col { grid-template-columns: 1fr !important; }
+  }
+</style>
+
+<style>
+/* ── iPhone mobile scale fix ─────────────────────────────────────────────── */
+@media (max-width: 430px) {
+  /* Containers */
+  [style*="max-width: 1280px"] { padding-left: 14px !important; padding-right: 14px !important; }
+  [style*="padding: 32px 24px"], [style*="padding: 24px 28px"], [style*="padding: 28px"] {
+    padding: 16px 14px !important;
+  }
+  /* Hero headlines — pull back clamp mins */
+  h1 { font-size: 28px !important; line-height: 1.1 !important; }
+  /* Cards */
+  [style*="border-radius: 20px"], [style*="border-radius: 18px"] {
+    border-radius: 14px !important;
+  }
+  /* Top bar */
+  header [style*="padding: 14px 24px"],
+  header [style*="padding: 12px 24px"] {
+    padding: 10px 14px !important;
+  }
+  /* Main page padding */
+  main[style*="padding: 32px 24px"], main[style*="padding: 24px 0"] {
+    padding: 16px 14px 80px !important;
+  }
+  /* Grid gaps */
+  [style*="gap: 32px"] { gap: 16px !important; }
+  [style*="gap: 24px"] { gap: 12px !important; }
+  /* Stat/tile cards in grids */
+  [style*="grid-template-columns: repeat(3"], 
+  [style*="grid-template-columns: repeat(4"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* Table overflow on mobile */
+  table { font-size: 12px !important; }
+  /* Demo nav — keep out of the way */
+  #bb-demo-nav { bottom: 10px !important; right: 10px !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<header style="background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); border-bottom: 1px solid #e7e5e4; position: sticky; top: 0; z-index: 20;">
+  <div style="max-width: 1280px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="homeowner-dashboard.html" class="font-sans-ui" style="font-size: 13px; color: #78716c; display: flex; align-items: center; gap: 6px; text-decoration: none;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        Dashboard
+      </a>
+      <div style="height: 20px; width: 1px; background: #e7e5e4;"></div>
+      <div style="font-size: 18px; font-weight: 600; letter-spacing: -0.02em;">Build-Budget</div>
+      <span class="font-sans-ui" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: #44403c; padding: 3px 8px; background: #f5f5f4; border-radius: 999px; font-weight: 600;">New Project</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;" class="font-sans-ui">
+      <button style="background: none; border: none; padding: 8px 14px; font-size: 13px; color: #78716c; cursor: pointer;">Save & exit</button>
+      <div style="width: 32px; height: 32px; border-radius: 999px; background: #fde68a; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px;">JW</div>
+    </div>
+  </div>
+</header>
+
+<main style="max-width: 1280px; margin: 0 auto; padding: 32px 24px 96px;">
+
+  <!-- Hero -->
+  <div style="margin-bottom: 32px;">
+    <div class="font-sans-ui" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: #78716c; margin-bottom: 12px;">Step 1 of 3 · Project details</div>
+    <h1 style="font-size: clamp(26px, 5vw, 56px); font-weight: 500; line-height: 0.95; letter-spacing: -0.02em; color: #1c1917; margin-bottom: 12px;">
+      Tell us about the <span style="font-style: italic; color: #b45309;">job</span>.
+    </h1>
+    <p class="font-sans-ui" style="font-size: 17px; color: #57534e; max-width: 640px; line-height: 1.5;">
+      The basics first — name, address, what kind of work. Drawings, materials, and contractors come later. You can edit anything as you go.
+    </p>
+  </div>
+
+  <!-- Progress stepper -->
+  <div style="margin-bottom: 36px;" class="font-sans-ui">
+    <div style="display: flex; align-items: center; gap: 0; max-width: 700px;">
+      <!-- Step 1 -->
+      <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+        <div style="width: 32px; height: 32px; border-radius: 999px; background: #1c1917; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px;">1</div>
+        <div>
+          <div style="font-size: 13px; font-weight: 600; color: #1c1917;">Details</div>
+          <div style="font-size: 10px; color: #78716c; text-transform: uppercase; letter-spacing: 0.1em;">Name & scope</div>
+        </div>
+      </div>
+      <div style="flex: 1; height: 2px; background: #e7e5e4; margin: 0 16px;"></div>
+      <!-- Step 2 -->
+      <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0; opacity: 0.5;">
+        <div style="width: 32px; height: 32px; border-radius: 999px; background: white; border: 2px solid #d6d3d1; color: #78716c; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px;">2</div>
+        <div>
+          <div style="font-size: 13px; font-weight: 600; color: #44403c;">Drawings</div>
+          <div style="font-size: 10px; color: #78716c; text-transform: uppercase; letter-spacing: 0.1em;">Optional</div>
+        </div>
+      </div>
+      <div style="flex: 1; height: 2px; background: #e7e5e4; margin: 0 16px;"></div>
+      <!-- Step 3 -->
+      <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0; opacity: 0.5;">
+        <div style="width: 32px; height: 32px; border-radius: 999px; background: white; border: 2px solid #d6d3d1; color: #78716c; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px;">3</div>
+        <div>
+          <div style="font-size: 13px; font-weight: 600; color: #44403c;">Review</div>
+          <div style="font-size: 10px; color: #78716c; text-transform: uppercase; letter-spacing: 0.1em;">Confirm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two-column layout -->
+  <div class="layout-grid" style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 32px;">
+
+    <!-- LEFT: Form -->
+    <div style="background: white; border: 1px solid #e7e5e4; border-radius: 20px; padding: 32px;">
+
+      <!-- Project type -->
+      <div style="margin-bottom: 32px;">
+        <label class="font-sans-ui" style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: #78716c; margin-bottom: 4px; font-weight: 600;">Type of work</label>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; margin: 0 0 14px;">Pick the closest match — you can refine later.</p>
+
+        <div class="type-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+          <!-- Extension (selected) -->
+          <button class="type-card selected" style="background: white; border: 2px solid #e7e5e4; border-radius: 14px; padding: 16px; text-align: center; cursor: pointer;">
+            <div class="type-icon-wrap" style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 10px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12 L12 4 L22 12"/><path d="M5 10 L5 21 L19 21 L19 10"/><rect x="9" y="14" width="6" height="7"/></svg>
+            </div>
+            <div style="font-size: 14px; font-weight: 500; color: #1c1917;" data-type-label="Extension"></div><div style="font-size: 14px; font-weight: 500; color: #1c1917;">Extension</div>
+            <div class="font-sans-ui" style="font-size: 10px; color: #78716c; margin-top: 2px;">Single or two-storey</div>
+          </button>
+
+          <!-- Loft -->
+          <button class="type-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 14px; padding: 16px; text-align: center; cursor: pointer;">
+            <div class="type-icon-wrap" style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 10px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 14 L12 4 L22 14"/><path d="M5 14 L5 20 L19 20 L19 14"/><rect x="9" y="9" width="3" height="3"/></svg>
+            </div>
+            <div style="font-size: 14px; font-weight: 500; color: #1c1917;" data-type-label="Loft"></div><div style="font-size: 14px; font-weight: 500; color: #1c1917;">Loft</div>
+            <div class="font-sans-ui" style="font-size: 10px; color: #78716c; margin-top: 2px;">Conversion</div>
+          </button>
+
+          <!-- Kitchen -->
+          <button class="type-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 14px; padding: 16px; text-align: center; cursor: pointer;">
+            <div class="type-icon-wrap" style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 10px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="9" width="18" height="11" rx="1"/><line x1="3" y1="13" x2="21" y2="13"/><line x1="9" y1="9" x2="9" y2="20"/><line x1="15" y1="9" x2="15" y2="20"/><circle cx="12" cy="6" r="2"/></svg>
+            </div>
+            <div style="font-size: 14px; font-weight: 500; color: #1c1917;" data-type-label="Kitchen"></div><div style="font-size: 14px; font-weight: 500; color: #1c1917;">Kitchen</div>
+            <div class="font-sans-ui" style="font-size: 10px; color: #78716c; margin-top: 2px;">Refit or rebuild</div>
+          </button>
+
+          <!-- Bathroom -->
+          <button class="type-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 14px; padding: 16px; text-align: center; cursor: pointer;">
+            <div class="type-icon-wrap" style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 10px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 12 L4 18 Q 4 20 6 20 L18 20 Q 20 20 20 18 L20 12 Z"/><path d="M3 12 L21 12"/><path d="M8 4 Q 8 7 11 7"/></svg>
+            </div>
+            <div style="font-size: 14px; font-weight: 500; color: #1c1917;" data-type-label="Bathroom"></div><div style="font-size: 14px; font-weight: 500; color: #1c1917;">Bathroom</div>
+            <div class="font-sans-ui" style="font-size: 10px; color: #78716c; margin-top: 2px;">Refit</div>
+          </button>
+
+          <!-- Garage -->
+          <button class="type-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 14px; padding: 16px; text-align: center; cursor: pointer;">
+            <div class="type-icon-wrap" style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 10px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21 L3 9 L12 4 L21 9 L21 21"/><rect x="6" y="13" width="12" height="8"/><line x1="6" y1="17" x2="18" y2="17"/></svg>
+            </div>
+            <div style="font-size: 14px; font-weight: 500; color: #1c1917;" data-type-label="Garage"></div><div style="font-size: 14px; font-weight: 500; color: #1c1917;">Garage</div>
+            <div class="font-sans-ui" style="font-size: 10px; color: #78716c; margin-top: 2px;">Conversion or new</div>
+          </button>
+
+          <!-- Garden -->
+          <button class="type-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 14px; padding: 16px; text-align: center; cursor: pointer;">
+            <div class="type-icon-wrap" style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 10px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 22 L12 12"/><path d="M12 12 Q 6 10 6 4 Q 12 6 12 12"/><path d="M12 12 Q 18 10 18 4 Q 12 6 12 12"/></svg>
+            </div>
+            <div style="font-size: 14px; font-weight: 500; color: #1c1917;" data-type-label="Garden / outbuilding"></div><div style="font-size: 14px; font-weight: 500; color: #1c1917;">Garden / outbuilding</div>
+            <div class="font-sans-ui" style="font-size: 10px; color: #78716c; margin-top: 2px;">Studio, decking</div>
+          </button>
+
+          <!-- Whole house -->
+          <button class="type-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 14px; padding: 16px; text-align: center; cursor: pointer;">
+            <div class="type-icon-wrap" style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 10px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/><rect x="10" y="14" width="4" height="7"/><rect x="7" y="13" width="2" height="2"/><rect x="15" y="13" width="2" height="2"/></svg>
+            </div>
+            <div style="font-size: 14px; font-weight: 500; color: #1c1917;" data-type-label="Whole house"></div><div style="font-size: 14px; font-weight: 500; color: #1c1917;">Whole house</div>
+            <div class="font-sans-ui" style="font-size: 10px; color: #78716c; margin-top: 2px;">Refurb / renovation</div>
+          </button>
+
+          <!-- Other -->
+          <button class="type-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 14px; padding: 16px; text-align: center; cursor: pointer;">
+            <div class="type-icon-wrap" style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 10px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/></svg>
+            </div>
+            <div style="font-size: 14px; font-weight: 500; color: #1c1917;" data-type-label="Other"></div><div style="font-size: 14px; font-weight: 500; color: #1c1917;">Other</div>
+            <div class="font-sans-ui" style="font-size: 10px; color: #78716c; margin-top: 2px;">Tell us</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Project name -->
+      <div style="margin-bottom: 28px;">
+        <label class="font-sans-ui" style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: #78716c; margin-bottom: 4px; font-weight: 600;">Project name</label>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; margin: 0 0 10px;">Just for your reference. Examples: "Rear extension", "Master bath refit".</p>
+        <input type="text" id="inp-name" placeholder="e.g. Rear kitchen extension" value="Rear kitchen extension" class="font-sans-ui" style="width: 100%; padding: 14px 16px; font-size: 16px; font-family: 'Manrope', sans-serif; border: 2px solid #e7e5e4; border-radius: 12px; transition: all 0.2s; background: #fafaf9;">
+      </div>
+
+      <!-- Address -->
+      <div style="margin-bottom: 28px;">
+        <label class="font-sans-ui" style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: #78716c; margin-bottom: 4px; font-weight: 600;">Site address</label>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; margin: 0 0 10px;">Where the work will happen. We use this to match local contractors.</p>
+        <div class="font-sans-ui" style="display: flex; align-items: start; gap: 8px; padding: 10px 12px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; margin-bottom: 14px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2.5" style="flex-shrink: 0; margin-top: 1px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <div style="font-size: 12px; color: #1e3a8a; line-height: 1.5;">
+            <strong>Your full address stays private.</strong> Contractors only see your postcode area when quoting. We share the exact address only with the contractor you award the job to.
+          </div>
+        </div>
+
+        <!-- Postcode lookup -->
+        <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-bottom: 12px;" class="two-col">
+          <div style="position: relative;">
+            <svg style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #78716c;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 7-8 13-8 13s-8-6-8-13a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <input type="text" id="inp-postcode" placeholder="Enter postcode" value="RG4 7XR" class="font-sans-ui" style="width: 100%; padding: 14px 16px 14px 40px; font-size: 16px; font-family: 'Manrope', sans-serif; border: 2px solid #e7e5e4; border-radius: 12px; background: #fafaf9; text-transform: uppercase;">
+          </div>
+          <button class="font-sans-ui" style="padding: 0 20px; background: #1c1917; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer;">Find address</button>
+        </div>
+
+        <!-- Selected address (auto-filled) -->
+        <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px;">
+          <div style="width: 32px; height: 32px; border-radius: 8px; background: #dcfce7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div style="flex: 1; min-width: 0;" class="font-sans-ui">
+            <div style="font-size: 14px; font-weight: 600; color: #064e3b; line-height: 1.3;">14 Riverside Avenue, Caversham</div>
+            <div style="font-size: 12px; color: #047857;">Reading, RG4 7XR</div>
+          </div>
+          <button class="font-sans-ui" style="background: none; border: none; font-size: 12px; color: #047857; font-weight: 600; cursor: pointer;">Change</button>
+        </div>
+      </div>
+
+      <!-- Brief description -->
+      <div style="margin-bottom: 28px;">
+        <label class="font-sans-ui" style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: #78716c; margin-bottom: 4px; font-weight: 600;">Brief description <span style="text-transform: none; letter-spacing: normal; font-weight: 400; color: #a8a29e;">— optional</span></label>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; margin: 0 0 10px;">A line or two of context. Helps with contractor matching.</p>
+        <textarea id="inp-desc" placeholder="e.g. 4×5m rear extension to existing semi-detached. Open-plan kitchen / dining replacing existing kitchen and utility. Building Regs already approved." rows="3" class="font-sans-ui" style="width: 100%; padding: 14px 16px; font-size: 14px; font-family: 'Manrope', sans-serif; border: 2px solid #e7e5e4; border-radius: 12px; background: #fafaf9; resize: vertical; line-height: 1.5;"></textarea>
+      </div>
+
+      <!-- Two-column: timing + budget -->
+      <div class="two-col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px;">
+
+        <!-- Target start -->
+        <div>
+          <label class="font-sans-ui" style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: #78716c; margin-bottom: 4px; font-weight: 600;">Target start</label>
+          <p class="font-sans-ui" style="font-size: 12px; color: #78716c; margin: 0 0 10px;">When you'd like work to begin.</p>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;" class="font-sans-ui">
+            <button class="chip" style="background: white; border: 1.5px solid #e7e5e4; padding: 8px 14px; border-radius: 999px; font-size: 13px; color: #44403c; font-weight: 500;">ASAP</button>
+            <button class="chip active" style="background: white; border: 1.5px solid #e7e5e4; padding: 8px 14px; border-radius: 999px; font-size: 13px; color: #44403c; font-weight: 500;">1–3 months</button>
+            <button class="chip" style="background: white; border: 1.5px solid #e7e5e4; padding: 8px 14px; border-radius: 999px; font-size: 13px; color: #44403c; font-weight: 500;">3–6 months</button>
+            <button class="chip" style="background: white; border: 1.5px solid #e7e5e4; padding: 8px 14px; border-radius: 999px; font-size: 13px; color: #44403c; font-weight: 500;">Flexible</button>
+          </div>
+        </div>
+
+        <!-- Budget range -->
+        <div>
+          <label class="font-sans-ui" style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: #78716c; margin-bottom: 4px; font-weight: 600;">Budget range <span style="text-transform: none; letter-spacing: normal; font-weight: 400; color: #a8a29e;">— optional</span></label>
+          <p class="font-sans-ui" style="font-size: 12px; color: #78716c; margin: 0 0 10px;">Helps contractors decide if it's a fit.</p>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;" class="font-sans-ui">
+            <button class="chip" style="background: white; border: 1.5px solid #e7e5e4; padding: 8px 14px; border-radius: 999px; font-size: 13px; color: #44403c; font-weight: 500;">Under £20k</button>
+            <button class="chip" style="background: white; border: 1.5px solid #e7e5e4; padding: 8px 14px; border-radius: 999px; font-size: 13px; color: #44403c; font-weight: 500;">£20–40k</button>
+            <button class="chip active" style="background: white; border: 1.5px solid #e7e5e4; padding: 8px 14px; border-radius: 999px; font-size: 13px; color: #44403c; font-weight: 500;">£40–60k</button>
+            <button class="chip" style="background: white; border: 1.5px solid #e7e5e4; padding: 8px 14px; border-radius: 999px; font-size: 13px; color: #44403c; font-weight: 500;">£60–100k</button>
+            <button class="chip" style="background: white; border: 1.5px solid #e7e5e4; padding: 8px 14px; border-radius: 999px; font-size: 13px; color: #44403c; font-weight: 500;">£100k+</button>
+            <button class="chip" style="background: white; border: 1.5px solid #e7e5e4; padding: 8px 14px; border-radius: 999px; font-size: 13px; color: #44403c; font-weight: 500;">Unsure</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Approvals checkboxes -->
+      <div style="margin-bottom: 8px;">
+        <label class="font-sans-ui" style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: #78716c; margin-bottom: 4px; font-weight: 600;">Approvals in place <span style="text-transform: none; letter-spacing: normal; font-weight: 400; color: #a8a29e;">— optional</span></label>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; margin: 0 0 12px;">Tick anything you've already obtained. Contractors love seeing these.</p>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;" class="font-sans-ui two-col">
+          <label style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: white; border: 1.5px solid #e7e5e4; border-radius: 10px; cursor: pointer;">
+            <input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #1c1917;">
+            <div>
+              <div id="appr-planning-lbl" style="font-size: 13px; font-weight: 600; color: #1c1917;">Planning permission</div>
+              <div style="font-size: 11px; color: #78716c;">Or permitted development</div>
+            </div>
+          </label>
+          <label style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: white; border: 1.5px solid #e7e5e4; border-radius: 10px; cursor: pointer;">
+            <input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #1c1917;">
+            <div>
+              <div id="appr-regs-lbl" style="font-size: 13px; font-weight: 600; color: #1c1917;">Building Regs</div>
+              <div style="font-size: 11px; color: #78716c;">Approved or in progress</div>
+            </div>
+          </label>
+          <label style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: white; border: 1.5px solid #e7e5e4; border-radius: 10px; cursor: pointer;">
+            <input type="checkbox" style="width: 18px; height: 18px; accent-color: #1c1917;">
+            <div>
+              <div id="appr-structural-lbl" style="font-size: 13px; font-weight: 600; color: #1c1917;">Structural calcs</div>
+              <div style="font-size: 11px; color: #78716c;">From an SE</div>
+            </div>
+          </label>
+          <label style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: white; border: 1.5px solid #e7e5e4; border-radius: 10px; cursor: pointer;">
+            <input type="checkbox" style="width: 18px; height: 18px; accent-color: #1c1917;">
+            <div>
+              <div id="appr-party-wall-lbl" style="font-size: 13px; font-weight: 600; color: #1c1917;">Party wall agreement</div>
+              <div style="font-size: 11px; color: #78716c;">If applicable</div>
+            </div>
+          </label>
+          <label style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: white; border: 1.5px solid #e7e5e4; border-radius: 10px; cursor: pointer;">
+            <input type="checkbox" style="width: 18px; height: 18px; accent-color: #1c1917;">
+            <div>
+              <div id="appr-architect-lbl" style="font-size: 13px; font-weight: 600; color: #1c1917;">Architect's drawings</div>
+              <div style="font-size: 11px; color: #78716c;">Signed-off design drawings</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Continue button — bottom of form -->
+      <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #f5f5f4;">
+        <button onclick="saveAndContinue()" style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: #1c1917; color: white; border: none; padding: 16px 24px; border-radius: 14px; font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; transition: background 0.15s; cursor: pointer;">
+          Continue to review
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+        <button onclick="history.back()" style="display: flex; align-items: center; justify-content: center; width: 100%; margin-top: 10px; background: transparent; color: #78716c; border: none; padding: 10px; font-family: 'Manrope', sans-serif; font-size: 13px; cursor: pointer;">Save &amp; exit</button>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Live summary card -->
+    <div class="stepper-summary" style="align-self: start; position: sticky; top: 80px;">
+      <div style="background: white; border: 1px solid #e7e5e4; border-radius: 20px; overflow: hidden;">
+
+        <!-- Project preview -->
+        <div style="padding: 24px; background: linear-gradient(180deg, #fffbeb 0%, white 100%); border-bottom: 1px solid #f5f5f4; position: relative;">
+          <div class="font-sans-ui" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: #92400e; margin-bottom: 10px; font-weight: 600;">Project preview</div>
+          <div style="display: flex; gap: 14px; align-items: center;">
+            <div style="width: 56px; height: 56px; border-radius: 12px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="1.6"><path d="M2 12 L12 4 L22 12"/><path d="M5 10 L5 21 L19 21 L19 10"/><rect x="9" y="14" width="6" height="7"/></svg>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 18px; font-weight: 600; color: #1c1917; line-height: 1.2; letter-spacing: -0.01em;">Rear kitchen extension</div>
+              <div class="font-sans-ui" style="font-size: 12px; color: #78716c; margin-top: 2px; display: flex; align-items: center; gap: 4px;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 7-8 13-8 13s-8-6-8-13a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Caversham, RG4 7XR
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary list -->
+        <div style="padding: 16px 24px;" class="font-sans-ui">
+          <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f5f4; font-size: 13px;">
+            <span style="color: #78716c;">Type</span>
+            <span style="font-weight: 600; color: #1c1917;">Extension</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f5f4; font-size: 13px;">
+            <span style="color: #78716c;">Target start</span>
+            <span style="font-weight: 600; color: #1c1917;">1–3 months</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f5f4; font-size: 13px;">
+            <span style="color: #78716c;">Budget</span>
+            <span style="font-weight: 600; color: #1c1917;">£40–60k</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 10px 0; font-size: 13px;">
+            <span style="color: #78716c;">Approvals</span>
+            <span style="font-weight: 600; color: #047857;">2 in place</span>
+          </div>
+        </div>
+
+        <!-- What's next -->
+        <div style="padding: 0 24px 20px;">
+          <div class="font-sans-ui" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: #78716c; margin: 8px 0 12px; font-weight: 600;">After this step</div>
+          <ul class="font-sans-ui" style="list-style: none; padding: 0; margin: 0; font-size: 12px; color: #44403c; line-height: 1.5;">
+            <li style="display: flex; gap: 10px; padding: 8px 0;">
+              <div style="width: 22px; height: 22px; border-radius: 999px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 600; color: #78716c;">2</div>
+              <div>
+                <div style="font-weight: 600; color: #1c1917;">Upload drawings or sketches</div>
+                <div style="color: #78716c; font-size: 11px;">Or skip and add later</div>
+              </div>
+            </li>
+            <li style="display: flex; gap: 10px; padding: 8px 0;">
+              <div style="width: 22px; height: 22px; border-radius: 999px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 600; color: #78716c;">3</div>
+              <div>
+                <div style="font-weight: 600; color: #1c1917;">Review & confirm</div>
+                <div style="color: #78716c; font-size: 11px;">Project goes live in your dashboard</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Action -->
+        <div style="padding: 16px 24px; background: #fafaf9; border-top: 1px solid #f5f5f4;">
+          <a href="new-project-drawings.html" style="width: 100%; background: #1c1917; color: white; border: none; padding: 14px; border-radius: 12px; font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; box-sizing: border-box;">
+            Continue to drawings
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+          <button class="font-sans-ui" style="width: 100%; background: transparent; color: #78716c; border: none; padding: 10px; margin-top: 4px; font-size: 12px; cursor: pointer;">Skip drawings — go straight to materials</button>
+        </div>
+      </div>
+
+      <!-- Helper note -->
+      <div style="margin-top: 16px; padding: 14px 16px; background: white; border: 1px solid #e7e5e4; border-radius: 12px; display: flex; gap: 12px; align-items: start;" class="font-sans-ui">
+        <div style="width: 28px; height: 28px; border-radius: 8px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#44403c" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        </div>
+        <div style="flex: 1; font-size: 12px; color: #57534e; line-height: 1.5;">
+          <strong style="color: #1c1917;">Auto-saved.</strong> Your progress is kept even if you close this tab. Come back anytime from the dashboard.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+
+<!-- DEMO NAVIGATION (clickable demo only) -->
+<div id="bb-demo-nav" style="position: fixed; bottom: 16px; right: 16px; z-index: 1000; font-family: 'Manrope', sans-serif;">
+  <details>
+    <summary>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Demo · jump to
+    </summary>
+    <div class="menu" style="padding: 8px; max-width: 280px; max-height: 70vh; overflow-y: auto;">
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">Main pages</div>
+      <a href="index.html" class="home" style="display: block; padding: 6px 10px; color: #fcd34d; font-size: 12px; border-radius: 6px; text-decoration: none;">⌂ Demo home</a>
+      <a href="homeowner-dashboard.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Dashboard (homeowner)</a>
+      <a href="my-projects.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">My Projects</a>
+      <a href="settings.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Settings (homeowner)</a>
+      <a href="ai-designer-capture.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">AI Designer · capture</a>
+      <a href="get-inspired.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">AI Designer · gallery</a>
+      <a href="ai-designer-result.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">AI Designer · result</a>
+      <a href="browse-products.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Browse Products</a>
+      <a href="find-a-pro.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Find a Pro</a>
+      <a href="project-workspace.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Project Workspace</a>
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">Contractor</div>
+      <a href="contractor-dashboard.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Dashboard (contractor)</a>
+      <a href="contractor-portal.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Portal (enquiry view)</a>
+      <a href="quote-builder.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Quote builder</a>
+      <a href="contractor-settings.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Settings (contractor)</a>
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">New project flow</div>
+      <a href="new-project-details.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">1 · Details</a>
+      <a href="new-project-drawings.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">2 · Drawings</a>
+      <a href="new-project-review.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">3 · Review</a>
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">Project journey</div>
+      <a href="measurement-review.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Measurement review</a>
+      <a href="sketch-upload.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Upload sketch</a>
+      <a href="project-vault.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Project vault</a>
+      <a href="quantity-summary.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Quantity summary</a>
+      <a href="send-enquiry.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Send enquiry</a>
+      <a href="budget-pricing.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Budget pricing</a>
+      <a href="material-selection.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Material selection</a>
+      <a href="homeowner-comparison.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Compare quotes</a>
+    </div>
+  </details>
+</div>
+<!-- /DEMO NAVIGATION -->
+
+
+<script>
+
+  // ── Type cards — single select ──────────────────────────────────────────────
+  document.querySelectorAll('.type-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      document.querySelectorAll('.type-card').forEach(function(c) {
+        c.classList.remove('selected');
+      });
+      this.classList.add('selected');
+    });
+  });
+
+  // ── Chips — single select per group ─────────────────────────────────────────
+  // Each chip group is the flex container holding the chips. We scope by parent.
+  document.querySelectorAll('.chip').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      // Deselect all siblings in the same parent
+      this.parentElement.querySelectorAll('.chip').forEach(function(c) {
+        c.classList.remove('active');
+      });
+      this.classList.add('active');
+    });
+  });
+
+
+  // ── Build-Budget: collect & save project data ─────────────────────────────
+  function saveAndContinue() {
+    var data = collectFormData();
+    try { localStorage.setItem('bb_draft_project', JSON.stringify(data)); } catch(e) {}
+    window.location.href = 'new-project-review.html';
+  }
+
+  function collectFormData() {
+    // Project name
+    var name = (document.getElementById('inp-name') || {}).value || 'My project';
+    // Postcode
+    var postcode = (document.getElementById('inp-postcode') || {}).value || '';
+    // Description
+    var desc = (document.getElementById('inp-desc') || {}).value || '';
+    // Project type — whichever .type-card has class 'selected'
+    var typeCard = document.querySelector('.type-card.selected');
+    var type = typeCard ? (typeCard.querySelector('[data-type-label]') ? typeCard.querySelector('[data-type-label]').getAttribute('data-type-label') : typeCard.innerText.trim().split('\n')[0]) : 'Extension';
+    // Budget — read the two range inputs if present, else use chip text
+    var budgetLow = 40000, budgetHigh = 60000;
+    var rangeInputs = document.querySelectorAll('input[type="range"]');
+    if (rangeInputs.length >= 2) {
+      budgetLow = parseInt(rangeInputs[0].value) || 40000;
+      budgetHigh = parseInt(rangeInputs[1].value) || 60000;
+    } else {
+      // Try to read from active budget chip
+      var bChip = document.querySelector('.budget-chip.active, .chip.active');
+      if (bChip) {
+        var txt = bChip.textContent.trim();
+        var nums = txt.match(/\d+/g);
+        if (nums && nums.length >= 2) { budgetLow = parseInt(nums[0])*1000; budgetHigh = parseInt(nums[1])*1000; }
+      }
+    }
+    // Timing — active chip in timing section
+    var timing = '1–3 months';
+    document.querySelectorAll('.chip.active').forEach(function(c){
+      var t = c.textContent.trim();
+      if (t && !t.includes('£')) timing = t;
+    });
+    // Approvals — checked checkboxes
+    var approvals = [];
+    var apprLabels = ['Planning permission','Building Regs','Structural calcs','Party wall agreement',"Architect's drawings"];
+    document.querySelectorAll('input[type="checkbox"]').forEach(function(cb, i){
+      if (cb.checked && apprLabels[i]) approvals.push(apprLabels[i]);
+    });
+    // Town from postcode (simple map for demo)
+    var town = 'Caversham';
+    var pc = postcode.toUpperCase().replace(/\s/g,'');
+    if (pc.startsWith('OX')) town = 'Oxford';
+    else if (pc.startsWith('RG')) town = 'Reading';
+    else if (pc.startsWith('SL')) town = 'Slough';
+    else if (pc.startsWith('GU')) town = 'Guildford';
+    else if (pc.startsWith('HP')) town = 'Hemel Hempstead';
+    else if (postcode.trim()) town = postcode.split(' ')[0];
+
+    return {
+      id: 'p_' + Date.now(),
+      name: name,
+      type: type,
+      postcode: postcode,
+      town: town,
+      description: desc,
+      budgetLow: budgetLow,
+      budgetHigh: budgetHigh,
+      timing: timing,
+      approvals: approvals,
+      stage: 'measuring',
+      created: new Date().toISOString(),
+      updated: new Date().toISOString()
+    };
+  }
+
+  // Build-Budget PWA — register service worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('sw.js').then(function(reg) {
+        // Listen for updates
+        reg.addEventListener('updatefound', function() {
+          var newWorker = reg.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', function() {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('[PWA] Update available — reload to apply.');
+              }
+            });
+          }
+        });
+      }).catch(function(err) {
+        console.warn('[PWA] Service worker registration failed:', err);
+      });
+    });
+  }
+  
+  // iOS install hint — show once for users on iOS who haven't installed
+  (function() {
+    try {
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      var isInStandalone = window.navigator.standalone === true ||
+                           window.matchMedia('(display-mode: standalone)').matches;
+      var dismissed = localStorage.getItem('bb-ios-install-dismissed');
+      if (isIOS && !isInStandalone && !dismissed) {
+        setTimeout(function() {
+          var hint = document.createElement('div');
+          hint.id = 'bb-ios-install-hint';
+          hint.style.cssText = 'position:fixed;bottom:20px;left:16px;right:16px;background:#1c1917;color:white;padding:14px 16px;border-radius:14px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;line-height:1.5;box-shadow:0 12px 32px -8px rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;gap:12px;';
+          hint.innerHTML = '<div style="flex:1;">Install Build-Budget — tap <span style="font-size:16px;">⎙</span> then <b>Add to Home Screen</b>.</div><button style="background:transparent;border:none;color:#fde68a;font-size:18px;cursor:pointer;padding:4px 8px;">✕</button>';
+          hint.querySelector('button').onclick = function() {
+            hint.remove();
+            try { localStorage.setItem('bb-ios-install-dismissed', '1'); } catch(e) {}
+          };
+          document.body.appendChild(hint);
+        }, 3000);
+      }
+    } catch(e) { /* localStorage might be unavailable in some in-app browsers */ }
+  })();
+</script>
+</body>
+</html>

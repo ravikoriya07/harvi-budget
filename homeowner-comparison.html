@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1c1917">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Build-Budget">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Build-Budget">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+<title>Build-Budget — Compare Quotes</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Fraunces', Georgia, serif; background: linear-gradient(180deg, #faf7f2 0%, #f5efe6 100%); min-height: 100vh; }
+  .font-sans-ui { font-family: 'Manrope', sans-serif; }
+  .quote-card { transition: all 0.3s ease; }
+  .quote-card.selected { border-color: #1c1917 !important; box-shadow: 0 16px 32px -10px rgba(0,0,0,0.18); transform: scale(1.01); }
+  @media (max-width: 900px) { .quote-grid { grid-template-columns: 1fr !important; } }
+</style>
+
+<style>
+/* ── iPhone mobile scale fix ─────────────────────────────────────────────── */
+@media (max-width: 430px) {
+  /* Containers */
+  [style*="max-width: 1280px"] { padding-left: 14px !important; padding-right: 14px !important; }
+  [style*="padding: 32px 24px"], [style*="padding: 24px 28px"], [style*="padding: 28px"] {
+    padding: 16px 14px !important;
+  }
+  /* Hero headlines — pull back clamp mins */
+  h1 { font-size: 28px !important; line-height: 1.1 !important; }
+  /* Cards */
+  [style*="border-radius: 20px"], [style*="border-radius: 18px"] {
+    border-radius: 14px !important;
+  }
+  /* Top bar */
+  header [style*="padding: 14px 24px"],
+  header [style*="padding: 12px 24px"] {
+    padding: 10px 14px !important;
+  }
+  /* Main page padding */
+  main[style*="padding: 32px 24px"], main[style*="padding: 24px 0"] {
+    padding: 16px 14px 80px !important;
+  }
+  /* Grid gaps */
+  [style*="gap: 32px"] { gap: 16px !important; }
+  [style*="gap: 24px"] { gap: 12px !important; }
+  /* Stat/tile cards in grids */
+  [style*="grid-template-columns: repeat(3"], 
+  [style*="grid-template-columns: repeat(4"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* Table overflow on mobile */
+  table { font-size: 12px !important; }
+  /* Demo nav — keep out of the way */
+  #bb-demo-nav { bottom: 10px !important; right: 10px !important; }
+}
+</style>
+</head>
+<body>
+
+<header style="background: rgba(255,255,255,0.7); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(28,25,23,0.08); position: sticky; top: 0; z-index: 20;">
+  <div style="max-width: 1280px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="project-workspace.html" class="font-sans-ui" style="font-size: 13px; color: #78716c; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> Project
+      </a>
+      <div style="height: 20px; width: 1px; background: #e7e5e4;"></div>
+      <div style="font-size: 18px; font-weight: 600; letter-spacing: -0.02em;">Build-Budget</div>
+    </div>
+    <div style="width: 32px; height: 32px; border-radius: 999px; background: #fde68a; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px;">JW</div>
+  </div>
+</header>
+
+<main style="max-width: 1280px; margin: 0 auto; padding: 40px 24px 80px;">
+
+  <div style="margin-bottom: 32px;">
+    <div class="font-sans-ui" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: #78716c; margin-bottom: 12px;">Your project · Caversham, RG4</div>
+    <h1 style="font-size: clamp(40px, 5vw, 64px); font-weight: 500; line-height: 0.95; letter-spacing: -0.02em; color: #1c1917; margin-bottom: 16px;">
+      Three quotes are in.
+      <span style="display: block; font-style: italic; color: #78716c; font-weight: 400;">Time to choose.</span>
+    </h1>
+    <p class="font-sans-ui" style="font-size: 17px; color: #57534e; max-width: 640px; line-height: 1.5;">
+      All three contractors quoted against the same scope and materials list. Compare on what matters most to you — price, timeline, or experience.
+    </p>
+  </div>
+
+  <!-- Summary band -->
+  <div style="background: white; border: 1px solid #e7e5e4; border-radius: 16px; padding: 22px 28px; margin-bottom: 28px; box-shadow: 0 4px 12px -4px rgba(0,0,0,0.04);">
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;" class="font-sans-ui">
+      <div>
+        <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: #78716c; font-weight: 600;">Materials (fixed)</div>
+        <div style="font-size: 26px; font-weight: 600; color: #1c1917; letter-spacing: -0.01em; margin-top: 4px; font-family: 'Fraunces', serif;">£28,400</div>
+      </div>
+      <div>
+        <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: #78716c; font-weight: 600;">Labour range</div>
+        <div style="font-size: 26px; font-weight: 600; color: #1c1917; letter-spacing: -0.01em; margin-top: 4px; font-family: 'Fraunces', serif;">£28.9k<span style="color: #d6d3d1;">–</span>£38.2k</div>
+      </div>
+      <div>
+        <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: #78716c; font-weight: 600;">Total range</div>
+        <div style="font-size: 26px; font-weight: 600; color: #1c1917; letter-spacing: -0.01em; margin-top: 4px; font-family: 'Fraunces', serif;">£57.3k<span style="color: #d6d3d1;">–</span>£66.6k</div>
+      </div>
+      <div>
+        <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: #78716c; font-weight: 600;">Responses</div>
+        <div style="font-size: 26px; font-weight: 600; color: #1c1917; letter-spacing: -0.01em; margin-top: 4px; font-family: 'Fraunces', serif;">3<span style="color: #d6d3d1;">/3</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI insight -->
+  <div style="background: linear-gradient(135deg, #1c1917 0%, #292524 60%, #78350f 100%); color: white; border-radius: 16px; padding: 26px 32px; margin-bottom: 36px; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: -40px; right: -40px; width: 240px; height: 240px; background: rgba(251,191,36,0.15); border-radius: 999px; filter: blur(60px);"></div>
+    <div style="position: relative;">
+      <div class="font-sans-ui" style="display: flex; align-items: center; gap: 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: #fcd34d; font-weight: 600; margin-bottom: 12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.7 5.3L19 9l-5.3 1.7L12 16l-1.7-5.3L5 9l5.3-1.7z"/></svg>
+        Build-Budget noticed
+      </div>
+      <p style="font-size: 20px; line-height: 1.5; font-weight: 500; margin: 0;">
+        Quote variance is <span style="font-style: italic; color: #fcd34d;">healthy</span> at 32%. Riverside is cheapest but starts a month later and has lower insurance. Henderson is the balanced choice. Thames Valley costs more but delivers fastest with the strongest credentials.
+      </p>
+    </div>
+  </div>
+
+  <!-- Quote cards -->
+  <div class="quote-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px;">
+
+    <!-- Henderson (selected) -->
+    <div class="quote-card selected" style="background: white; border: 2px solid #e7e5e4; border-radius: 16px; padding: 22px;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
+        <div style="width: 44px; height: 44px; border-radius: 999px; background: #dcfce7; color: #047857; display: flex; align-items: center; justify-content: center; font-weight: 600; font-family: 'Fraunces', serif; font-size: 18px;">H</div>
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-size: 17px; font-weight: 500; line-height: 1.2; letter-spacing: -0.01em;">Henderson &amp; Sons</div>
+          <div class="font-sans-ui" style="font-size: 11px; color: #78716c;">Est. 2008 · 18 yrs</div>
+        </div>
+      </div>
+      <div class="font-sans-ui" style="display: flex; align-items: center; gap: 4px; font-size: 13px; margin-bottom: 18px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#fbbf24"><polygon points="12 2 15 9 22 9 17 14 19 22 12 18 5 22 7 14 2 9 9 9"/></svg>
+        <strong>4.9</strong><span style="color: #78716c;">(47 reviews)</span>
+      </div>
+      <div style="border-top: 1px solid #e7e5e4; padding-top: 14px; margin-bottom: 14px;">
+        <div class="font-sans-ui" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: #78716c; font-weight: 600;">Total</div>
+        <div style="font-size: clamp(22px, 4vw, 32px); font-weight: 600; letter-spacing: -0.02em; margin-top: 2px;">£60,900</div>
+        <div class="font-sans-ui" style="font-size: 12px; color: #78716c;">£28,400 materials + £32,500 labour</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;" class="font-sans-ui">
+        <div style="background: #fafaf9; padding: 10px 12px; border-radius: 8px;">
+          <div style="font-size: 10px; color: #78716c; text-transform: uppercase; letter-spacing: 0.1em;">Start</div>
+          <div style="font-size: 13px; font-weight: 600; color: #1c1917; margin-top: 2px;">Jun 2026</div>
+        </div>
+        <div style="background: #fafaf9; padding: 10px 12px; border-radius: 8px;">
+          <div style="font-size: 10px; color: #78716c; text-transform: uppercase; letter-spacing: 0.1em;">Duration</div>
+          <div style="font-size: 13px; font-weight: 600; color: #1c1917; margin-top: 2px;">8 weeks</div>
+        </div>
+      </div>
+      <ul class="font-sans-ui" style="list-style: none; padding: 0; margin: 0 0 12px; font-size: 12px;">
+        <li style="display: flex; gap: 6px; padding: 3px 0; color: #44403c;"><span style="color: #047857;">✓</span>Local — 2.3 mi away</li>
+        <li style="display: flex; gap: 6px; padding: 3px 0; color: #44403c;"><span style="color: #047857;">✓</span>3 similar extensions in past year</li>
+        <li style="display: flex; gap: 6px; padding: 3px 0; color: #44403c;"><span style="color: #047857;">✓</span>All trades in-house</li>
+      </ul>
+      <div class="font-sans-ui" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 8px 10px; border-radius: 8px; font-size: 11px; color: #064e3b; display: flex; align-items: center; gap: 6px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Accepts your materials list
+      </div>
+      <button class="font-sans-ui" style="width: 100%; background: #1c1917; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 14px;">Selected</button>
+    </div>
+
+    <!-- Riverside -->
+    <div class="quote-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 16px; padding: 22px;">
+      <span class="font-sans-ui" style="display: inline-block; font-size: 9px; padding: 2px 7px; background: #fef3c7; color: #92400e; border-radius: 999px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">Lowest</span>
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
+        <div style="width: 44px; height: 44px; border-radius: 999px; background: #fef3c7; color: #92400e; display: flex; align-items: center; justify-content: center; font-weight: 600; font-family: 'Fraunces', serif; font-size: 18px;">R</div>
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-size: 17px; font-weight: 500; line-height: 1.2; letter-spacing: -0.01em;">Riverside Builders</div>
+          <div class="font-sans-ui" style="font-size: 11px; color: #78716c;">Est. 2015 · 11 yrs</div>
+        </div>
+      </div>
+      <div class="font-sans-ui" style="display: flex; align-items: center; gap: 4px; font-size: 13px; margin-bottom: 18px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#fbbf24"><polygon points="12 2 15 9 22 9 17 14 19 22 12 18 5 22 7 14 2 9 9 9"/></svg>
+        <strong>4.7</strong><span style="color: #78716c;">(23 reviews)</span>
+      </div>
+      <div style="border-top: 1px solid #e7e5e4; padding-top: 14px; margin-bottom: 14px;">
+        <div class="font-sans-ui" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: #78716c; font-weight: 600;">Total</div>
+        <div style="font-size: clamp(22px, 4vw, 32px); font-weight: 600; letter-spacing: -0.02em; margin-top: 2px;">£57,300</div>
+        <div class="font-sans-ui" style="font-size: 12px; color: #78716c;">£28,400 materials + £28,900 labour</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;" class="font-sans-ui">
+        <div style="background: #fafaf9; padding: 10px 12px; border-radius: 8px;">
+          <div style="font-size: 10px; color: #78716c; text-transform: uppercase; letter-spacing: 0.1em;">Start</div>
+          <div style="font-size: 13px; font-weight: 600; color: #1c1917; margin-top: 2px;">Jul 2026</div>
+        </div>
+        <div style="background: #fafaf9; padding: 10px 12px; border-radius: 8px;">
+          <div style="font-size: 10px; color: #78716c; text-transform: uppercase; letter-spacing: 0.1em;">Duration</div>
+          <div style="font-size: 13px; font-weight: 600; color: #1c1917; margin-top: 2px;">10 weeks</div>
+        </div>
+      </div>
+      <ul class="font-sans-ui" style="list-style: none; padding: 0; margin: 0 0 12px; font-size: 12px;">
+        <li style="display: flex; gap: 6px; padding: 3px 0; color: #44403c;"><span style="color: #047857;">✓</span>£3,600 below average</li>
+        <li style="display: flex; gap: 6px; padding: 3px 0; color: #44403c;"><span style="color: #047857;">✓</span>Suggests Ibstock brick (saves £340)</li>
+        <li style="display: flex; gap: 6px; padding: 3px 0; color: #57534e;"><span style="color: #d97706;">!</span>Later start than others</li>
+        <li style="display: flex; gap: 6px; padding: 3px 0; color: #57534e;"><span style="color: #d97706;">!</span>£2m insurance vs £5m typical</li>
+      </ul>
+      <div class="font-sans-ui" style="background: #fffbeb; border: 1px solid #fde68a; padding: 8px 10px; border-radius: 8px; font-size: 11px; color: #92400e; display: flex; align-items: center; gap: 6px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Suggests material substitutions
+      </div>
+      <button class="font-sans-ui" style="width: 100%; background: #f5f5f4; color: #1c1917; border: none; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 14px;">Select</button>
+    </div>
+
+    <!-- Thames Valley -->
+    <div class="quote-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 16px; padding: 22px;">
+      <span class="font-sans-ui" style="display: inline-block; font-size: 9px; padding: 2px 7px; background: #dcfce7; color: #047857; border-radius: 999px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">Fastest</span>
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
+        <div style="width: 44px; height: 44px; border-radius: 999px; background: #e7e5e4; color: #44403c; display: flex; align-items: center; justify-content: center; font-weight: 600; font-family: 'Fraunces', serif; font-size: 18px;">T</div>
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-size: 17px; font-weight: 500; line-height: 1.2; letter-spacing: -0.01em;">Thames Valley Construction</div>
+          <div class="font-sans-ui" style="font-size: 11px; color: #78716c;">Est. 1998 · 28 yrs</div>
+        </div>
+      </div>
+      <div class="font-sans-ui" style="display: flex; align-items: center; gap: 4px; font-size: 13px; margin-bottom: 18px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#fbbf24"><polygon points="12 2 15 9 22 9 17 14 19 22 12 18 5 22 7 14 2 9 9 9"/></svg>
+        <strong>4.8</strong><span style="color: #78716c;">(89 reviews)</span>
+      </div>
+      <div style="border-top: 1px solid #e7e5e4; padding-top: 14px; margin-bottom: 14px;">
+        <div class="font-sans-ui" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: #78716c; font-weight: 600;">Total</div>
+        <div style="font-size: clamp(22px, 4vw, 32px); font-weight: 600; letter-spacing: -0.02em; margin-top: 2px;">£66,600</div>
+        <div class="font-sans-ui" style="font-size: 12px; color: #78716c;">£28,400 materials + £38,200 labour</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;" class="font-sans-ui">
+        <div style="background: #fafaf9; padding: 10px 12px; border-radius: 8px;">
+          <div style="font-size: 10px; color: #78716c; text-transform: uppercase; letter-spacing: 0.1em;">Start</div>
+          <div style="font-size: 13px; font-weight: 600; color: #1c1917; margin-top: 2px;">Jun 2026</div>
+        </div>
+        <div style="background: #fafaf9; padding: 10px 12px; border-radius: 8px;">
+          <div style="font-size: 10px; color: #78716c; text-transform: uppercase; letter-spacing: 0.1em;">Duration</div>
+          <div style="font-size: 13px; font-weight: 600; color: #1c1917; margin-top: 2px;">7 weeks</div>
+        </div>
+      </div>
+      <ul class="font-sans-ui" style="list-style: none; padding: 0; margin: 0 0 12px; font-size: 12px;">
+        <li style="display: flex; gap: 6px; padding: 3px 0; color: #44403c;"><span style="color: #047857;">✓</span>Fastest delivery — 7 weeks</li>
+        <li style="display: flex; gap: 6px; padding: 3px 0; color: #44403c;"><span style="color: #047857;">✓</span>28 years trading</li>
+        <li style="display: flex; gap: 6px; padding: 3px 0; color: #44403c;"><span style="color: #047857;">✓</span>£10m insurance, TrustMark</li>
+        <li style="display: flex; gap: 6px; padding: 3px 0; color: #57534e;"><span style="color: #d97706;">!</span>£5,700 above average</li>
+      </ul>
+      <div class="font-sans-ui" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 8px 10px; border-radius: 8px; font-size: 11px; color: #064e3b; display: flex; align-items: center; gap: 6px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Accepts your materials list
+      </div>
+      <button class="font-sans-ui" style="width: 100%; background: #f5f5f4; color: #1c1917; border: none; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 14px;">Select</button>
+    </div>
+
+  </div>
+
+  <!-- Action bar -->
+  <div style="background: white; border: 1px solid #e7e5e4; border-radius: 16px; padding: 24px 28px; box-shadow: 0 4px 12px -4px rgba(0,0,0,0.04); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+    <div>
+      <div class="font-sans-ui" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: #78716c; font-weight: 600;">Decision</div>
+      <div style="font-size: 22px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; margin-top: 2px;">Award to Henderson &amp; Sons</div>
+      <div class="font-sans-ui" style="font-size: 13px; color: #57534e; margin-top: 4px;">Total commitment: <strong>£60,900</strong> · Others politely declined.</div>
+    </div>
+    <div style="display: flex; gap: 10px;" class="font-sans-ui">
+      <a href="project-workspace.html" style="background: #1c1917; color: white; border: none; padding: 14px 22px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; text-decoration: none;">
+        Award contract
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+
+</main>
+
+
+<!-- DEMO NAVIGATION (clickable demo only) -->
+<div id="bb-demo-nav" style="position: fixed; bottom: 16px; right: 16px; z-index: 1000; font-family: 'Manrope', sans-serif;">
+  <details>
+    <summary>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Demo · jump to
+    </summary>
+    <div class="menu" style="padding: 8px; max-width: 280px; max-height: 70vh; overflow-y: auto;">
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">Main pages</div>
+      <a href="index.html" class="home" style="display: block; padding: 6px 10px; color: #fcd34d; font-size: 12px; border-radius: 6px; text-decoration: none;">⌂ Demo home</a>
+      <a href="homeowner-dashboard.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Dashboard (homeowner)</a>
+      <a href="my-projects.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">My Projects</a>
+      <a href="settings.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Settings (homeowner)</a>
+      <a href="ai-designer-capture.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">AI Designer · capture</a>
+      <a href="get-inspired.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">AI Designer · gallery</a>
+      <a href="ai-designer-result.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">AI Designer · result</a>
+      <a href="browse-products.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Browse Products</a>
+      <a href="find-a-pro.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Find a Pro</a>
+      <a href="project-workspace.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Project Workspace</a>
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">Contractor</div>
+      <a href="contractor-dashboard.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Dashboard (contractor)</a>
+      <a href="contractor-portal.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Portal (enquiry view)</a>
+      <a href="quote-builder.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Quote builder</a>
+      <a href="contractor-settings.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Settings (contractor)</a>
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">New project flow</div>
+      <a href="new-project-details.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">1 · Details</a>
+      <a href="new-project-drawings.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">2 · Drawings</a>
+      <a href="new-project-review.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">3 · Review</a>
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">Project journey</div>
+      <a href="measurement-review.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Measurement review</a>
+      <a href="sketch-upload.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Upload sketch</a>
+      <a href="project-vault.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Project vault</a>
+      <a href="quantity-summary.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Quantity summary</a>
+      <a href="send-enquiry.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Send enquiry</a>
+      <a href="budget-pricing.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Budget pricing</a>
+      <a href="material-selection.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Material selection</a>
+      <a href="homeowner-comparison.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Compare quotes</a>
+    </div>
+  </details>
+</div>
+<!-- /DEMO NAVIGATION -->
+
+
+<script>
+  // Build-Budget PWA — register service worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('sw.js').then(function(reg) {
+        // Listen for updates
+        reg.addEventListener('updatefound', function() {
+          var newWorker = reg.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', function() {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('[PWA] Update available — reload to apply.');
+              }
+            });
+          }
+        });
+      }).catch(function(err) {
+        console.warn('[PWA] Service worker registration failed:', err);
+      });
+    });
+  }
+  
+  // iOS install hint — show once for users on iOS who haven't installed
+  (function() {
+    try {
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      var isInStandalone = window.navigator.standalone === true ||
+                           window.matchMedia('(display-mode: standalone)').matches;
+      var dismissed = localStorage.getItem('bb-ios-install-dismissed');
+      if (isIOS && !isInStandalone && !dismissed) {
+        setTimeout(function() {
+          var hint = document.createElement('div');
+          hint.id = 'bb-ios-install-hint';
+          hint.style.cssText = 'position:fixed;bottom:20px;left:16px;right:16px;background:#1c1917;color:white;padding:14px 16px;border-radius:14px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;line-height:1.5;box-shadow:0 12px 32px -8px rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;gap:12px;';
+          hint.innerHTML = '<div style="flex:1;">Install Build-Budget — tap <span style="font-size:16px;">⎙</span> then <b>Add to Home Screen</b>.</div><button style="background:transparent;border:none;color:#fde68a;font-size:18px;cursor:pointer;padding:4px 8px;">✕</button>';
+          hint.querySelector('button').onclick = function() {
+            hint.remove();
+            try { localStorage.setItem('bb-ios-install-dismissed', '1'); } catch(e) {}
+          };
+          document.body.appendChild(hint);
+        }, 3000);
+      }
+    } catch(e) { /* localStorage might be unavailable in some in-app browsers */ }
+  })();
+</script>
+</body>
+</html>

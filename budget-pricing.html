@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1c1917">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Build-Budget">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<title>Build-Budget — Budget Pricing</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Fraunces',Georgia,serif;background:#faf7f2;color:#1c1917;min-height:100vh}
+.sans{font-family:'Manrope',sans-serif}
+.mono{font-family:'Consolas','JetBrains Mono',monospace}
+.topbar{background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid #e7e5e4;position:sticky;top:0;z-index:20}
+.topbar-inner{max-width:1200px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.layout{max-width:1200px;margin:0 auto;padding:32px 24px 80px;display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.summary-rail{position:static!important}}
+@media(max-width:430px){.layout{padding:16px 12px 80px;gap:18px}h1{font-size:22px!important}}
+.card{background:white;border:1px solid #e7e5e4;border-radius:18px;overflow:hidden;margin-bottom:18px}
+.card-hd{padding:16px 22px;border-bottom:1px solid #f5f5f4;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.card-hd h2{font-size:18px;font-weight:500;letter-spacing:-.01em}
+.card-hd .sub{font-family:'Manrope',sans-serif;font-size:12px;color:#78716c;margin-top:2px}
+/* Cost table */
+table{width:100%;border-collapse:collapse;font-family:'Manrope',sans-serif}
+thead{border-bottom:2px solid #1c1917}
+th{padding:10px 20px;font-size:10px;text-transform:uppercase;letter-spacing:.15em;font-weight:700;white-space:nowrap;background:#1c1917;color:#fde68a}
+th.r{text-align:right}
+th:first-child{text-align:left;border-radius:0}
+td{padding:11px 20px;border-bottom:1px solid #f5f5f4;font-size:13px;color:#44403c;vertical-align:middle}
+td.r{text-align:right}
+td.amt{text-align:right;font-family:'Consolas','JetBrains Mono',monospace;font-weight:600;color:#1c1917;font-size:13px;font-variant-numeric:tabular-nums}
+td.muted{color:#a8a29e;font-size:12px}
+tbody tr:hover{background:#fafaf9}
+.subtotal-row td{background:#f5f5f4;font-weight:700;color:#1c1917;border-top:2px solid #e7e5e4;border-bottom:2px solid #e7e5e4;font-size:13px}
+.subtotal-row td.amt{font-size:14px}
+/* Source badge */
+.src{font-size:9px;padding:2px 6px;border-radius:999px;font-weight:700;font-family:'Manrope',sans-serif;margin-left:6px;vertical-align:middle}
+.src-bb{background:#1c1917;color:#fde68a}
+.src-lab{background:#eff6ff;color:#1e3a8a}
+.src-est{background:#fef3c7;color:#92400e}
+/* Summary rail */
+.summary-rail{position:sticky;top:76px}
+.summary-dark{background:linear-gradient(135deg,#1c1917 0%,#292524 60%,#78350f 100%);border-radius:18px;overflow:hidden;position:relative}
+.summary-dark .blob{position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:rgba(251,191,36,.15);border-radius:999px;filter:blur(50px);pointer-events:none}
+.s-head{padding:16px 22px;border-bottom:1px solid rgba(255,255,255,.08);position:relative}
+.s-body{padding:16px 22px;position:relative}
+.s-line{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-family:'Manrope',sans-serif;font-size:13px}
+.s-line .n{color:#d6d3d1}
+.s-line .v{font-family:'Consolas','JetBrains Mono',monospace;font-weight:700;color:white;font-variant-numeric:tabular-nums}
+.s-div{height:1px;background:rgba(255,255,255,.1);margin:6px 0}
+.s-total{display:flex;justify-content:space-between;align-items:flex-end;padding:10px 0 4px}
+.s-total .lbl{font-family:'Manrope',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#fcd34d}
+.s-total .val{font-size:32px;font-weight:600;letter-spacing:-.02em;color:#fde68a;font-variant-numeric:tabular-nums;line-height:1}
+.s-foot{background:rgba(0,0,0,.2);padding:10px 22px;font-family:'Manrope',sans-serif;font-size:11px;color:#a8a29e;text-align:center;position:relative}
+/* Info card */
+.info-card{background:white;border:1px solid #e7e5e4;border-radius:14px;padding:14px 16px;margin-top:12px;display:flex;gap:10px;align-items:start}
+.info-card p{font-family:'Manrope',sans-serif;font-size:12px;color:#57534e;line-height:1.5}
+/* Toggle tab */
+.tab-strip{display:flex;gap:4px;margin-bottom:20px;background:white;border:1px solid #e7e5e4;border-radius:12px;padding:4px}
+.tab{flex:1;padding:9px 14px;border-radius:9px;border:none;background:transparent;font-family:'Manrope',sans-serif;font-size:13px;font-weight:600;color:#78716c;cursor:pointer;transition:all .15s;text-align:center}
+.tab.active{background:#1c1917;color:white}
+/* Progress bars */
+.bar-bg{height:6px;background:#f5f5f4;border-radius:999px;overflow:hidden;margin-top:6px}
+.bar-fill{height:100%;border-radius:999px;background:#1c1917}
+/* Disclaimer */
+.disclaimer{background:#fafaf9;border:1px solid #e7e5e4;border-radius:12px;padding:14px 18px;display:flex;gap:10px;align-items:start;margin-bottom:20px}
+.disclaimer p{font-family:'Manrope',sans-serif;font-size:12px;color:#78716c;line-height:1.5}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div style="display:flex;align-items:center;gap:14px">
+      <a href="project-workspace.html" class="sans" style="font-size:13px;color:#78716c;text-decoration:none;display:flex;align-items:center;gap:5px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>Project
+      </a>
+      <div style="height:18px;width:1px;background:#e7e5e4"></div>
+      <div style="font-size:17px;font-weight:600;letter-spacing:-.02em">Build-Budget</div>
+      <span class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#44403c;padding:3px 8px;background:#f5f5f4;border-radius:999px;font-weight:600">Budget pricing</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <a href="find-a-pro.html" class="sans" style="background:#1c1917;color:white;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px">
+        Find a contractor
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+      <div style="width:32px;height:32px;border-radius:999px;background:#fde68a;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px">JW</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+<div><!-- LEFT COLUMN -->
+
+  <!-- Hero -->
+  <div style="margin-bottom:28px">
+    <div class="sans" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em;color:#78716c;margin-bottom:10px;font-weight:600">Rear kitchen extension · Cost plan</div>
+    <h1 style="font-size:clamp(24px,5vw,40px);font-weight:500;line-height:1.05;letter-spacing:-.02em;margin-bottom:12px">
+      Budget <span style="font-style:italic;color:#b45309">pricing</span>.
+    </h1>
+    <p class="sans" style="font-size:15px;color:#57534e;max-width:620px;line-height:1.55">Built from your selected materials and measured quantities, with indicative labour rates for the Reading area. This is a pre-quote cost plan — actual contractor quotes will vary.</p>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="disclaimer">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+    <p><strong style="color:#1c1917">This is an indicative cost plan, not a quote.</strong> Labour rates are regional averages for the Reading / Thames Valley area based on recent Build-Budget data. Your actual contractor quotes will differ — this plan helps you sanity-check them and understand what's driving cost.</p>
+  </div>
+
+  <!-- View toggle -->
+  <div class="tab-strip">
+    <button class="tab active" onclick="showView('detailed')">Detailed breakdown</button>
+    <button class="tab" onclick="showView('summary')">Category summary</button>
+  </div>
+
+  <!-- DETAILED VIEW -->
+  <div id="view-detailed">
+
+    <!-- 1. Materials -->
+    <div class="card">
+      <div class="card-hd">
+        <div>
+          <h2>1. Materials</h2>
+          <div class="sub">From your Build-Budget selection · trade prices</div>
+        </div>
+        <div>
+          <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;text-align:right">Section total</div>
+          <div style="font-size:20px;font-weight:600;letter-spacing:-.02em;text-align:right">£16,045</div>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th style="width:36%;text-align:left">Item</th>
+            <th style="text-align:left">Merchant</th>
+            <th class="r">Qty</th>
+            <th class="r">Unit price</th>
+            <th class="r">Total</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>Forterra Cradley Mixed Russet brick<span class="src src-bb">B-B</span></td>
+              <td class="muted">Jewson</td>
+              <td class="r">2,400</td>
+              <td class="r">£0.76</td>
+              <td class="amt">£1,814</td>
+            </tr>
+            <tr>
+              <td>Marley Modern Concrete Roof Tile<span class="src src-bb">B-B</span></td>
+              <td class="muted">Travis Perkins</td>
+              <td class="r">28 m²</td>
+              <td class="r">£42.00</td>
+              <td class="amt">£1,176</td>
+            </tr>
+            <tr>
+              <td>Celotex GA4000 100mm PIR insulation<span class="src src-bb">B-B</span></td>
+              <td class="muted">Selco</td>
+              <td class="r">31 bds</td>
+              <td class="r">£28.90</td>
+              <td class="amt">£896</td>
+            </tr>
+            <tr>
+              <td>British Gypsum Gyproc Standard 12.5mm<span class="src src-bb">B-B</span></td>
+              <td class="muted">Travis Perkins</td>
+              <td class="r">88 m²</td>
+              <td class="r">£8.40</td>
+              <td class="amt">£739</td>
+            </tr>
+            <tr>
+              <td>Regularised C16 Joist 47×150mm<span class="src src-bb">B-B</span></td>
+              <td class="muted">Jewson</td>
+              <td class="r">180 m</td>
+              <td class="r">£9.80</td>
+              <td class="amt">£1,764</td>
+            </tr>
+            <tr>
+              <td>Dulux Trade Diamond Matt emulsion<span class="src src-bb">B-B</span></td>
+              <td class="muted">Dulux</td>
+              <td class="r">2 × 10L</td>
+              <td class="r">£28.00</td>
+              <td class="amt">£56</td>
+            </tr>
+            <tr>
+              <td>Steel beam RSJ 203×203 UC × 4.2m<span class="src src-bb">B-B</span></td>
+              <td class="muted">Travis Perkins</td>
+              <td class="r">1 nr</td>
+              <td class="r">£890.00</td>
+              <td class="amt">£890</td>
+            </tr>
+            <tr>
+              <td>EPDM single-ply membrane<span class="src src-bb">B-B</span></td>
+              <td class="muted">Jewson</td>
+              <td class="r">28 m²</td>
+              <td class="r">£18.40</td>
+              <td class="amt">£515</td>
+            </tr>
+            <tr>
+              <td>OSB 18mm decking boards<span class="src src-bb">B-B</span></td>
+              <td class="muted">Selco</td>
+              <td class="r">24.2 m²</td>
+              <td class="r">£14.20</td>
+              <td class="amt">£344</td>
+            </tr>
+            <tr>
+              <td>Bifold door system 4.2m × 2.1m<span class="src src-bb">B-B</span></td>
+              <td class="muted">Jewson</td>
+              <td class="r">1 unit</td>
+              <td class="r">£6,840.00</td>
+              <td class="amt">£6,840</td>
+            </tr>
+            <tr>
+              <td>Roof light glazed panels<span class="src src-bb">B-B</span></td>
+              <td class="muted">Travis Perkins</td>
+              <td class="r">12.6 m²</td>
+              <td class="r">£86.50</td>
+              <td class="amt">£1,090</td>
+            </tr>
+            <tr>
+              <td>Mass concrete, DPC, DPM, sundries<span class="src src-bb">B-B</span></td>
+              <td class="muted">Various</td>
+              <td class="r">—</td>
+              <td class="r">—</td>
+              <td class="amt">£921</td>
+            </tr>
+            <tr class="subtotal-row">
+              <td colspan="4"><strong>Materials subtotal</strong> <span class="sans" style="font-size:11px;color:#78716c;font-weight:400">· 12 lines · Build-Budget trade prices · saving £3,210 vs list</span></td>
+              <td class="amt r">£16,045</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2. Labour -->
+    <div class="card">
+      <div class="card-hd">
+        <div>
+          <h2>2. Labour <span style="font-style:italic;color:#b45309;font-size:16px">— indicative</span></h2>
+          <div class="sub">Regional average day rates · Reading / Thames Valley · May 2026</div>
+        </div>
+        <div>
+          <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;text-align:right">Section total</div>
+          <div style="font-size:20px;font-weight:600;letter-spacing:-.02em;text-align:right">£14,800</div>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th style="width:36%;text-align:left">Trade</th>
+            <th style="text-align:left">Scope</th>
+            <th class="r">Days</th>
+            <th class="r">Rate/day</th>
+            <th class="r">Total</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>General builder / groundworks<span class="src src-lab">Labour</span></td>
+              <td class="muted">Foundations, blockwork, slab</td>
+              <td class="r">8</td>
+              <td class="r">£320</td>
+              <td class="amt">£2,560</td>
+            </tr>
+            <tr>
+              <td>Bricklayer + labourer<span class="src src-lab">Labour</span></td>
+              <td class="muted">External skin, reveals, DPC</td>
+              <td class="r">7</td>
+              <td class="r">£380</td>
+              <td class="amt">£2,660</td>
+            </tr>
+            <tr>
+              <td>Carpenter / roof structure<span class="src src-lab">Labour</span></td>
+              <td class="muted">Joist framework, decking, fascia</td>
+              <td class="r">5</td>
+              <td class="r">£320</td>
+              <td class="amt">£1,600</td>
+            </tr>
+            <tr>
+              <td>Structural steel install<span class="src src-lab">Labour</span></td>
+              <td class="muted">RSJ beam, padstones, propping</td>
+              <td class="r">2</td>
+              <td class="r">£480</td>
+              <td class="amt">£960</td>
+            </tr>
+            <tr>
+              <td>Flat roofer<span class="src src-lab">Labour</span></td>
+              <td class="muted">EPDM membrane, insulation, trim</td>
+              <td class="r">3</td>
+              <td class="r">£340</td>
+              <td class="amt">£1,020</td>
+            </tr>
+            <tr>
+              <td>Glazing / bifold installer<span class="src src-lab">Labour</span></td>
+              <td class="muted">Bifold door set + roof lights</td>
+              <td class="r">2</td>
+              <td class="r">£420</td>
+              <td class="amt">£840</td>
+            </tr>
+            <tr>
+              <td>Electrician (1st &amp; 2nd fix)<span class="src src-lab">Labour</span></td>
+              <td class="muted">4 circuits, 14 sockets, 12 lights</td>
+              <td class="r">4</td>
+              <td class="r">£280</td>
+              <td class="amt">£1,120</td>
+            </tr>
+            <tr>
+              <td>Plumber / heating engineer<span class="src src-lab">Labour</span></td>
+              <td class="muted">UFH, boiler extension, pipework</td>
+              <td class="r">4</td>
+              <td class="r">£300</td>
+              <td class="amt">£1,200</td>
+            </tr>
+            <tr>
+              <td>Plasterer<span class="src src-lab">Labour</span></td>
+              <td class="muted">Board, skim all surfaces</td>
+              <td class="r">5</td>
+              <td class="r">£260</td>
+              <td class="amt">£1,300</td>
+            </tr>
+            <tr>
+              <td>Decorator<span class="src src-lab">Labour</span></td>
+              <td class="muted">Mist coat + 2 finish coats</td>
+              <td class="r">3</td>
+              <td class="r">£240</td>
+              <td class="amt">£720</td>
+            </tr>
+            <tr>
+              <td>General labourer<span class="src src-lab">Labour</span></td>
+              <td class="muted">Site clearance, skips, deliveries</td>
+              <td class="r">4</td>
+              <td class="r">£180</td>
+              <td class="amt">£720</td>
+            </tr>
+            <tr>
+              <td>Supervision / project management<span class="src src-lab">Labour</span></td>
+              <td class="muted">Contractor coordination and QA</td>
+              <td class="r">—</td>
+              <td class="r">—</td>
+              <td class="amt">£100</td>
+            </tr>
+            <tr class="subtotal-row">
+              <td colspan="4"><strong>Labour subtotal</strong> <span class="sans" style="font-size:11px;color:#78716c;font-weight:400">· 47 trade-days · indicative regional average · RG1–RG9</span></td>
+              <td class="amt r">£14,800</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. Prelims & Plant -->
+    <div class="card">
+      <div class="card-hd">
+        <div>
+          <h2>3. Prelims &amp; plant hire</h2>
+          <div class="sub">Site setup, skip, scaffold, sundries</div>
+        </div>
+        <div>
+          <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#78716c;font-weight:600;text-align:right">Section total</div>
+          <div style="font-size:20px;font-weight:600;letter-spacing:-.02em;text-align:right">£3,200</div>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th style="width:46%;text-align:left">Item</th>
+            <th style="text-align:left">Duration</th>
+            <th class="r">Rate</th>
+            <th class="r">Total</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td>Skip hire × 3 (6 yard)<span class="src src-est">Est.</span></td>
+              <td class="muted">Over programme</td>
+              <td class="r">£180 ea</td>
+              <td class="amt">£540</td>
+            </tr>
+            <tr>
+              <td>Mini-digger hire 1.5T<span class="src src-est">Est.</span></td>
+              <td class="muted">3 days</td>
+              <td class="r">£120/day</td>
+              <td class="amt">£360</td>
+            </tr>
+            <tr>
+              <td>Scaffold tower hire<span class="src src-est">Est.</span></td>
+              <td class="muted">2 weeks</td>
+              <td class="r">£180/wk</td>
+              <td class="amt">£360</td>
+            </tr>
+            <tr>
+              <td>Site welfare &amp; protection<span class="src src-est">Est.</span></td>
+              <td class="muted">Full programme</td>
+              <td class="r">Lump</td>
+              <td class="amt">£400</td>
+            </tr>
+            <tr>
+              <td>Structural engineer fee<span class="src src-est">Est.</span></td>
+              <td class="muted">Beam design &amp; sign-off</td>
+              <td class="r">Lump</td>
+              <td class="amt">£800</td>
+            </tr>
+            <tr>
+              <td>Building control fee<span class="src src-est">Est.</span></td>
+              <td class="muted">LA submission</td>
+              <td class="r">Lump</td>
+              <td class="amt">£740</td>
+            </tr>
+            <tr class="subtotal-row">
+              <td colspan="3"><strong>Prelims subtotal</strong> <span class="sans" style="font-size:11px;color:#78716c;font-weight:400">· estimated — confirm with contractor</span></td>
+              <td class="amt r">£3,200</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4. Contingency -->
+    <div class="card">
+      <div class="card-hd">
+        <h2>4. Contingency</h2>
+        <div style="font-size:20px;font-weight:600;letter-spacing:-.02em">£1,705</div>
+      </div>
+      <div style="padding:16px 22px" class="sans">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-size:13px;color:#44403c">5% of materials + labour + prelims</div>
+          <div style="font-family:'Consolas','JetBrains Mono',monospace;font-weight:700;color:#1c1917">£1,705</div>
+        </div>
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;font-size:12px;color:#78350f;line-height:1.5">
+          <strong style="color:#1c1917">Why contingency?</strong> Ground conditions, hidden services, and scope changes during build are common on UK domestic extensions. 5% is conservative — experienced contractors often recommend 10–15% for a first extension.
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /view-detailed -->
+
+  <!-- SUMMARY VIEW -->
+  <div id="view-summary" style="display:none">
+    <div class="card">
+      <div class="card-hd">
+        <div>
+          <h2>Cost by category</h2>
+          <div class="sub">Materials + indicative labour combined</div>
+        </div>
+      </div>
+      <div style="padding:20px 22px">
+
+        <!-- Category rows -->
+        <div style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+            <span class="sans" style="font-size:13px;font-weight:600;color:#1c1917">Structure &amp; substructure</span>
+            <span class="mono" style="font-weight:700">£9,820</span>
+          </div>
+          <div class="sans" style="font-size:11px;color:#78716c;margin-bottom:5px">Foundations, blockwork, concrete, steel — highest cost item</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:56%;background:#1c1917"></div></div>
+        </div>
+
+        <div style="margin-bottom:8px;padding-top:14px;border-top:1px solid #f5f5f4">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+            <span class="sans" style="font-size:13px;font-weight:600;color:#1c1917">Glazing &amp; openings</span>
+            <span class="mono" style="font-weight:700">£8,810</span>
+          </div>
+          <div class="sans" style="font-size:11px;color:#78716c;margin-bottom:5px">Bifold doors, roof lights, windows — including supply &amp; fit</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:50%;background:#b45309"></div></div>
+        </div>
+
+        <div style="margin-bottom:8px;padding-top:14px;border-top:1px solid #f5f5f4">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+            <span class="sans" style="font-size:13px;font-weight:600;color:#1c1917">Roof</span>
+            <span class="mono" style="font-weight:700">£5,510</span>
+          </div>
+          <div class="sans" style="font-size:11px;color:#78716c;margin-bottom:5px">Structure, EPDM, insulation, fascia, guttering</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:31%"></div></div>
+        </div>
+
+        <div style="margin-bottom:8px;padding-top:14px;border-top:1px solid #f5f5f4">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+            <span class="sans" style="font-size:13px;font-weight:600;color:#1c1917">Mechanical, electrical &amp; plumbing</span>
+            <span class="mono" style="font-weight:700">£3,920</span>
+          </div>
+          <div class="sans" style="font-size:11px;color:#78716c;margin-bottom:5px">UFH, electrics, boiler extension — first &amp; second fix</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:22%"></div></div>
+        </div>
+
+        <div style="margin-bottom:8px;padding-top:14px;border-top:1px solid #f5f5f4">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+            <span class="sans" style="font-size:13px;font-weight:600;color:#1c1917">Internal finishes</span>
+            <span class="mono" style="font-weight:700">£3,960</span>
+          </div>
+          <div class="sans" style="font-size:11px;color:#78716c;margin-bottom:5px">Plasterboard, skim, screed, decoration, skirting</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:22%"></div></div>
+        </div>
+
+        <div style="margin-bottom:8px;padding-top:14px;border-top:1px solid #f5f5f4">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+            <span class="sans" style="font-size:13px;font-weight:600;color:#1c1917">Prelims, plant &amp; professional fees</span>
+            <span class="mono" style="font-weight:700">£3,200</span>
+          </div>
+          <div class="sans" style="font-size:11px;color:#78716c;margin-bottom:5px">Skips, scaffold, SE fee, Building Control</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:18%"></div></div>
+        </div>
+
+        <div style="margin-bottom:8px;padding-top:14px;border-top:1px solid #f5f5f4">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+            <span class="sans" style="font-size:13px;font-weight:600;color:#1c1917">Contingency (5%)</span>
+            <span class="mono" style="font-weight:700">£1,705</span>
+          </div>
+          <div class="sans" style="font-size:11px;color:#78716c;margin-bottom:5px">Ground conditions, hidden services, scope change</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:10%;background:#d97706"></div></div>
+        </div>
+
+        <div style="padding-top:18px;border-top:2px solid #1c1917;display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+          <span class="sans" style="font-size:14px;font-weight:700;color:#1c1917">Total (ex. VAT)</span>
+          <span class="mono" style="font-size:22px;font-weight:700;color:#1c1917">£36,925</span>
+        </div>
+
+      </div>
+    </div>
+  </div><!-- /view-summary -->
+
+  <!-- What's not included -->
+  <div class="card">
+    <div class="card-hd">
+      <h2>What's not included</h2>
+      <div class="sub">These are common extras — your contractor will need to quote for them separately</div>
+    </div>
+    <div style="padding:16px 22px;display:grid;grid-template-columns:1fr 1fr;gap:8px" class="sans">
+      <div style="display:flex;gap:8px;align-items:start;font-size:13px;color:#44403c">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" style="flex-shrink:0;margin-top:2px"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        Kitchen units &amp; appliances
+      </div>
+      <div style="display:flex;gap:8px;align-items:start;font-size:13px;color:#44403c">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" style="flex-shrink:0;margin-top:2px"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        Floor finish (tiles, LVT, etc.)
+      </div>
+      <div style="display:flex;gap:8px;align-items:start;font-size:13px;color:#44403c">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" style="flex-shrink:0;margin-top:2px"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        Architect / design fees
+      </div>
+      <div style="display:flex;gap:8px;align-items:start;font-size:13px;color:#44403c">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" style="flex-shrink:0;margin-top:2px"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        Party wall surveyor (if applicable)
+      </div>
+      <div style="display:flex;gap:8px;align-items:start;font-size:13px;color:#44403c">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" style="flex-shrink:0;margin-top:2px"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        VAT (if contractor is VAT-registered)
+      </div>
+      <div style="display:flex;gap:8px;align-items:start;font-size:13px;color:#44403c">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" style="flex-shrink:0;margin-top:2px"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        Landscaping &amp; external works
+      </div>
+      <div style="display:flex;gap:8px;align-items:start;font-size:13px;color:#44403c">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" style="flex-shrink:0;margin-top:2px"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        Planning fees (if required)
+      </div>
+      <div style="display:flex;gap:8px;align-items:start;font-size:13px;color:#44403c">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" style="flex-shrink:0;margin-top:2px"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        Work to existing services (gas, leccy main)
+      </div>
+    </div>
+  </div>
+
+</div><!-- /left column -->
+
+<!-- RIGHT: Summary rail -->
+<aside class="summary-rail">
+  <div class="summary-dark">
+    <div class="blob"></div>
+    <div class="s-head">
+      <div class="sans" style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#fcd34d;font-weight:600;margin-bottom:4px">COST PLAN · PRE-QUOTE</div>
+      <div style="font-size:16px;font-weight:500;color:white;letter-spacing:-.01em">Rear kitchen extension</div>
+    </div>
+    <div class="s-body">
+      <div class="s-line"><span class="n">Materials (B-B trade)</span><span class="v">£16,045</span></div>
+      <div class="s-line"><span class="n">Labour (indicative)</span><span class="v">£14,800</span></div>
+      <div class="s-line"><span class="n">Prelims &amp; plant</span><span class="v">£3,200</span></div>
+      <div class="s-line"><span class="n">Contingency 5%</span><span class="v">£1,705</span></div>
+      <div class="s-div"></div>
+      <div class="s-line"><span class="n">Net (ex. VAT)</span><span class="v">£35,750</span></div>
+      <div class="s-line"><span class="n">VAT @ 20%</span><span class="v">£7,150</span></div>
+      <div class="s-total">
+        <div>
+          <div class="lbl">ESTIMATED TOTAL</div>
+          <div class="sans" style="font-size:10px;color:#d6d3d1;margin-top:2px">incl. VAT</div>
+        </div>
+        <div class="val">£42,900</div>
+      </div>
+    </div>
+    <div class="s-foot">Indicative · based on regional averages · May 2026</div>
+  </div>
+
+  <div class="info-card">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    <p><strong style="color:#1c1917">Saving £3,210</strong> on materials vs. merchant list price — through Build-Budget's negotiated trade rates.</p>
+  </div>
+
+  <div class="info-card">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+    <p>Labour rates are averages. Your quotes may be ±15–20% depending on contractor, timing, and ground conditions.</p>
+  </div>
+
+  <div style="margin-top:14px">
+    <a href="find-a-pro.html" class="sans" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#1c1917;color:white;padding:13px 20px;border-radius:12px;font-size:14px;font-weight:700;text-decoration:none;transition:background .15s">
+      Get contractor quotes
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+    <a href="quantity-summary.html" class="sans" style="display:flex;align-items:center;justify-content:center;gap:8px;background:white;color:#1c1917;border:1.5px solid #e7e5e4;padding:11px 20px;border-radius:12px;font-size:13px;font-weight:600;text-decoration:none;margin-top:8px">
+      View quantity summary
+    </a>
+      <a href="send-enquiry.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Send enquiry</a>
+    <a href="material-selection.html" class="sans" style="display:flex;align-items:center;justify-content:center;gap:8px;background:white;color:#1c1917;border:1.5px solid #e7e5e4;padding:11px 20px;border-radius:12px;font-size:13px;font-weight:600;text-decoration:none;margin-top:8px">
+      Adjust materials
+    </a>
+  </div>
+</aside>
+
+</div><!-- /layout -->
+
+<!-- DEMO NAV -->
+<div id="bb-demo-nav" style="position:fixed;bottom:16px;right:16px;z-index:1000;font-family:'Manrope',sans-serif">
+  <details>
+    <summary style="background:#1c1917;color:white;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Demo · jump to
+    </summary>
+    <div style="background:#1c1917;border-radius:12px;padding:8px;max-width:260px;max-height:60vh;overflow-y:auto;margin-top:4px;box-shadow:0 12px 32px -8px rgba(0,0,0,.4)">
+      <a href="index.html" style="display:block;padding:6px 10px;color:#fcd34d;font-size:12px;border-radius:6px;text-decoration:none">⌂ Demo home</a>
+      <a href="homeowner-dashboard.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Dashboard</a>
+      <a href="project-workspace.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Project Workspace</a>
+      <a href="measurement-review.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Measurement review</a>
+      <a href="sketch-upload.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Upload sketch</a>
+      <a href="project-vault.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Project vault</a>
+      <a href="quantity-summary.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Quantity summary</a>
+      <a href="budget-pricing.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Budget pricing</a>
+      <a href="material-selection.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Material selection</a>
+      <a href="homeowner-comparison.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Compare quotes</a>
+      <a href="find-a-pro.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Find a Pro</a>
+      <a href="settings.html" style="display:block;padding:6px 10px;color:white;font-size:12px;border-radius:6px;text-decoration:none">Settings</a>
+    </div>
+  </details>
+</div>
+
+<script>
+function showView(v){
+  document.getElementById('view-detailed').style.display = v==='detailed'?'block':'none';
+  document.getElementById('view-summary').style.display  = v==='summary'?'block':'none';
+  document.querySelectorAll('.tab').forEach(function(t,i){
+    t.classList.toggle('active', (i===0&&v==='detailed')||(i===1&&v==='summary'));
+  });
+}
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(e){console.warn('[PWA]',e);});});}
+(function(){try{var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;var isStandalone=window.navigator.standalone===true||window.matchMedia('(display-mode: standalone)').matches;var dismissed=localStorage.getItem('bb-ios-install-dismissed');if(isIOS&&!isStandalone&&!dismissed){setTimeout(function(){var h=document.createElement('div');h.style.cssText='position:fixed;bottom:16px;left:16px;right:16px;background:#1c1917;color:white;padding:14px 16px;border-radius:14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 12px 32px -8px rgba(0,0,0,.4);z-index:9999;display:flex;align-items:center;gap:12px;';h.innerHTML='<div style="flex:1">Install Build-Budget — tap <span style="font-size:16px">⎙</span> then <b>Add to Home Screen</b>.</div><button style="background:transparent;border:none;color:#fde68a;font-size:18px;cursor:pointer;padding:4px 8px">✕</button>';h.querySelector('button').onclick=function(){h.remove();try{localStorage.setItem('bb-ios-install-dismissed','1');}catch(e){}};document.body.appendChild(h);},3000);}}catch(e){}})();
+</script>
+</body>
+</html>

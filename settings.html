@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1c1917">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Build-Budget">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Build-Budget">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+<title>Build-Budget — Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; }
+  body { font-family: 'Fraunces', Georgia, serif; background: #faf7f2; color: #1c1917; }
+  .font-sans-ui { font-family: 'Manrope', sans-serif; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+  input, select, textarea { font-family: 'Manrope', sans-serif; }
+
+  .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+  /* Header */
+  .topbar {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #e7e5e4;
+    position: sticky; top: 0; z-index: 20;
+  }
+  .topbar-inner {
+    max-width: 1280px; margin: 0 auto;
+    padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .back-link {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px; color: #78716c;
+    display: flex; align-items: center; gap: 6px;
+    background: none; border: none; cursor: pointer;
+  }
+  .back-link:hover { color: #1c1917; }
+  .logo { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+  .breadcrumb-pill {
+    font-family: 'Manrope', sans-serif;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em;
+    color: #44403c; padding: 3px 8px;
+    background: #f5f5f4; border-radius: 999px; font-weight: 600;
+  }
+  .topbar-divider { height: 20px; width: 1px; background: #e7e5e4; }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 999px;
+    background: #fde68a; color: #78350f;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 12px;
+  }
+
+  /* Page */
+  .page { padding: 32px 0 96px; }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em;
+    color: #78716c; font-weight: 600; margin-bottom: 12px;
+  }
+  h1.title {
+    font-size: clamp(26px, 5vw, 56px);
+    font-weight: 500; line-height: 0.95; letter-spacing: -0.02em;
+    color: #1c1917; margin-bottom: 12px;
+  }
+  h1.title .accent { font-style: italic; color: #b45309; }
+  .lead {
+    font-family: 'Manrope', sans-serif;
+    font-size: 17px; color: #57534e; line-height: 1.55; max-width: 640px;
+    margin-bottom: 36px;
+  }
+
+  /* Layout */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; gap: 20px; }
+    .nav-rail { position: static !important; }
+    .nav-rail .nav-list { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; }
+    .nav-rail .nav-list::-webkit-scrollbar { display: none; }
+    .nav-rail .nav-item { flex-shrink: 0; }
+  }
+
+  /* Left rail */
+  .nav-rail {
+    position: sticky; top: 88px;
+  }
+  .nav-list {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .nav-item {
+    font-family: 'Manrope', sans-serif;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #57534e;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    transition: all 0.15s;
+    background: none; border: none; text-align: left; width: 100%;
+    white-space: nowrap;
+  }
+  .nav-item:hover { background: #f5f5f4; color: #1c1917; }
+  .nav-item.active {
+    background: #1c1917;
+    color: white;
+    font-weight: 600;
+  }
+  .nav-item.active svg { stroke: white; }
+  .nav-item .nav-icon {
+    width: 16px; height: 16px;
+    color: #78716c;
+  }
+  .nav-item.active .nav-icon { color: #fde68a; }
+
+  /* Sections — only "Profile" is shown active here, others stub */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: white;
+    border: 1px solid #e7e5e4;
+    border-radius: 18px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f5f5f4;
+  }
+  .card-header h2 {
+    font-size: 20px; font-weight: 500;
+    letter-spacing: -0.01em; line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  .card-header .desc {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px; color: #78716c; line-height: 1.5;
+  }
+  .card-body {
+    padding: 20px 24px;
+  }
+
+  /* Form rows */
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 600px) { .field-row { grid-template-columns: 1fr; } }
+
+  .field-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em;
+    color: #78716c; font-weight: 600; margin-bottom: 6px; display: block;
+  }
+  .field-help {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px; color: #78716c; margin-top: 6px; line-height: 1.5;
+  }
+  input[type="text"], input[type="email"], input[type="tel"], select, textarea {
+    width: 100%;
+    padding: 11px 14px;
+    font-size: 14px;
+    border: 1.5px solid #e7e5e4;
+    border-radius: 10px;
+    background: #fafaf9;
+    color: #1c1917;
+    transition: all 0.15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #1c1917;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(28,25,23,0.06);
+  }
+
+  /* Avatar editor */
+  .avatar-editor {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .avatar-large {
+    width: 72px; height: 72px;
+    border-radius: 999px;
+    background: #fde68a; color: #78350f;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 600; font-size: 30px;
+    flex-shrink: 0;
+  }
+  .btn-secondary {
+    background: white;
+    border: 1.5px solid #e7e5e4;
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px; font-weight: 600;
+    color: #44403c;
+    transition: all 0.15s;
+  }
+  .btn-secondary:hover { border-color: #1c1917; color: #1c1917; }
+  .btn-link {
+    background: transparent; border: none; padding: 0;
+    color: #57534e;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+  }
+  .btn-link:hover { color: #1c1917; }
+
+  /* Action footer */
+  .card-footer {
+    padding: 16px 24px;
+    background: #fafaf9;
+    border-top: 1px solid #f5f5f4;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .footer-note {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px; color: #78716c;
+  }
+  .btn-primary {
+    background: #1c1917; color: white;
+    border: none; border-radius: 10px;
+    padding: 10px 18px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px; font-weight: 600;
+    transition: all 0.15s;
+  }
+  .btn-primary:hover { background: #292524; }
+
+  /* Address rows */
+  .address-row {
+    display: flex; align-items: start; gap: 14px;
+    padding: 14px 0;
+    border-top: 1px solid #f5f5f4;
+  }
+  .address-row:first-child { border-top: none; padding-top: 0; }
+  .address-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .address-info { flex: 1; min-width: 0; }
+  .address-info .label {
+    font-family: 'Fraunces', serif;
+    font-size: 14px; font-weight: 500;
+    color: #1c1917;
+    margin-bottom: 2px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .badge-default {
+    font-family: 'Manrope', sans-serif;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em;
+    background: #1c1917; color: white;
+    padding: 2px 6px; border-radius: 4px; font-weight: 700;
+  }
+  .address-info .full {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px; color: #57534e;
+  }
+  .address-info .meta {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px; color: #78716c; margin-top: 4px;
+  }
+  .address-actions {
+    display: flex; gap: 4px; flex-shrink: 0;
+  }
+  .icon-action {
+    background: none; border: none;
+    padding: 6px; border-radius: 8px;
+    color: #78716c;
+  }
+  .icon-action:hover { background: #f5f5f4; color: #1c1917; }
+
+  /* Privacy strip */
+  .privacy-strip {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex; gap: 12px; align-items: start;
+    margin-top: 16px;
+  }
+  .privacy-strip .text {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px; color: #1e3a8a; line-height: 1.5;
+  }
+
+  /* Notification toggles */
+  .notif-table { width: 100%; }
+  .notif-row {
+    display: grid;
+    grid-template-columns: 1fr 50px 50px 50px;
+    gap: 12px;
+    padding: 14px 0;
+    border-top: 1px solid #f5f5f4;
+    align-items: center;
+  }
+  .notif-row:first-child { border-top: none; padding-top: 0; }
+  .notif-row.head {
+    border-top: none;
+    padding-bottom: 6px;
+  }
+  .notif-row.head .col-head {
+    font-family: 'Manrope', sans-serif;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em;
+    color: #78716c; font-weight: 700; text-align: center;
+  }
+  .notif-row.head .col-head:first-child { text-align: left; }
+  .notif-info .label {
+    font-family: 'Fraunces', serif;
+    font-size: 14px; font-weight: 500;
+    color: #1c1917; margin-bottom: 2px;
+  }
+  .notif-info .desc {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px; color: #78716c; line-height: 1.4;
+  }
+
+  /* Toggle switch */
+  .toggle {
+    position: relative;
+    width: 38px; height: 22px;
+    margin: 0 auto;
+    background: #d6d3d1;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 18px; height: 18px;
+    background: white;
+    border-radius: 999px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .toggle.on {
+    background: #1c1917;
+  }
+  .toggle.on::after { transform: translateX(16px); }
+  .toggle.disabled { opacity: 0.4; cursor: not-allowed; }
+
+  @media (max-width: 600px) {
+    .notif-row { grid-template-columns: 1fr 36px 36px 36px; gap: 6px; }
+    .toggle { width: 32px; height: 18px; }
+    .toggle::after { width: 14px; height: 14px; }
+    .toggle.on::after { transform: translateX(14px); }
+  }
+
+  /* Payment cards */
+  .payment-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 0;
+    border-top: 1px solid #f5f5f4;
+  }
+  .payment-row:first-child { border-top: none; padding-top: 0; }
+  .card-mark {
+    width: 44px; height: 30px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Manrope', sans-serif;
+    font-size: 9px; font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+  }
+  .card-mark.visa { background: linear-gradient(135deg, #1a1f71 0%, #2d3a99 100%); }
+  .card-mark.mc { background: linear-gradient(135deg, #eb001b 0%, #f79e1b 100%); }
+  .payment-info { flex: 1; min-width: 0; }
+  .payment-info .label {
+    font-family: 'Fraunces', serif;
+    font-size: 14px; font-weight: 500;
+    color: #1c1917; margin-bottom: 2px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .payment-info .meta {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px; color: #78716c;
+  }
+
+  /* Connected services */
+  .connection-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 0;
+    border-top: 1px solid #f5f5f4;
+  }
+  .connection-row:first-child { border-top: none; padding-top: 0; }
+  .conn-logo {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700; font-size: 13px;
+    color: white;
+  }
+  .conn-info { flex: 1; min-width: 0; }
+  .conn-info .label {
+    font-family: 'Fraunces', serif;
+    font-size: 15px; font-weight: 500;
+    color: #1c1917; margin-bottom: 2px;
+  }
+  .conn-info .meta {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px; color: #78716c;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .meta-dot {
+    width: 6px; height: 6px; border-radius: 999px;
+    background: #047857;
+  }
+  .meta-dot.off { background: #d6d3d1; }
+
+  /* Danger zone */
+  .danger-zone {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 18px;
+    padding: 24px;
+    margin-top: 32px;
+  }
+  .danger-zone h2 {
+    color: #991b1b;
+    font-size: 20px; font-weight: 500;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .danger-zone .desc {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px; color: #7f1d1d; line-height: 1.5;
+    margin-bottom: 14px;
+  }
+  .danger-row {
+    background: white;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 16px;
+    margin-top: 10px; flex-wrap: wrap;
+  }
+  .danger-row .label {
+    font-family: 'Fraunces', serif;
+    font-size: 14px; font-weight: 500;
+    color: #1c1917; flex: 1;
+  }
+  .danger-row .meta {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px; color: #78716c; margin-top: 2px;
+  }
+  .btn-danger {
+    background: white;
+    border: 1.5px solid #dc2626;
+    color: #991b1b;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px; font-weight: 600;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-danger:hover { background: #dc2626; color: white; }
+
+  /* Demo nav */
+  #bb-demo-nav {
+    position: fixed; bottom: 16px; right: 16px; z-index: 1000;
+    font-family: 'Manrope', sans-serif;
+  }
+  #bb-demo-nav details {
+    background: #1c1917; color: white;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px -8px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
+  #bb-demo-nav summary {
+    padding: 10px 16px; cursor: pointer;
+    font-size: 12px; font-weight: 600;
+    list-style: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+  #bb-demo-nav summary::-webkit-details-marker { display: none; }
+  #bb-demo-nav .menu { padding: 8px; max-width: 280px; max-height: 70vh; overflow-y: auto; }
+  #bb-demo-nav .menu-label {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em;
+    color: #a8a29e; padding: 8px 10px 4px;
+  }
+  #bb-demo-nav .menu a {
+    display: block; padding: 6px 10px;
+    color: white; font-size: 12px; border-radius: 6px;
+  }
+  #bb-demo-nav .menu a.home { color: #fcd34d; }
+  #bb-demo-nav .menu a:hover { background: rgba(255,255,255,0.08); }
+</style>
+
+<style>
+/* ── iPhone mobile scale fix ─────────────────────────────────────────────── */
+@media (max-width: 430px) {
+  /* Containers */
+  [style*="max-width: 1280px"] { padding-left: 14px !important; padding-right: 14px !important; }
+  [style*="padding: 32px 24px"], [style*="padding: 24px 28px"], [style*="padding: 28px"] {
+    padding: 16px 14px !important;
+  }
+  /* Hero headlines — pull back clamp mins */
+  h1 { font-size: 28px !important; line-height: 1.1 !important; }
+  /* Cards */
+  [style*="border-radius: 20px"], [style*="border-radius: 18px"] {
+    border-radius: 14px !important;
+  }
+  /* Top bar */
+  header [style*="padding: 14px 24px"],
+  header [style*="padding: 12px 24px"] {
+    padding: 10px 14px !important;
+  }
+  /* Main page padding */
+  main[style*="padding: 32px 24px"], main[style*="padding: 24px 0"] {
+    padding: 16px 14px 80px !important;
+  }
+  /* Grid gaps */
+  [style*="gap: 32px"] { gap: 16px !important; }
+  [style*="gap: 24px"] { gap: 12px !important; }
+  /* Stat/tile cards in grids */
+  [style*="grid-template-columns: repeat(3"], 
+  [style*="grid-template-columns: repeat(4"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* Table overflow on mobile */
+  table { font-size: 12px !important; }
+  /* Demo nav — keep out of the way */
+  #bb-demo-nav { bottom: 10px !important; right: 10px !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="homeowner-dashboard.html" class="back-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        Dashboard
+      </a>
+      <div class="topbar-divider"></div>
+      <div class="logo">Build-Budget</div>
+      <span class="breadcrumb-pill">Settings</span>
+    </div>
+    <div class="avatar">JW</div>
+  </div>
+</header>
+
+<main class="container page">
+
+  <!-- Hero -->
+  <div class="eyebrow">Account &amp; preferences</div>
+  <h1 class="title"><span class="accent">Settings</span>.</h1>
+  <p class="lead">
+    Profile, addresses, notifications, payment, and privacy — all in one place. Changes save automatically.
+  </p>
+
+  <div class="layout">
+
+    <!-- Left rail -->
+    <nav class="nav-rail">
+      <ul class="nav-list" id="nav-list">
+        <li><button class="nav-item active" data-section="profile">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Profile
+        </button></li>
+        <li><button class="nav-item" data-section="addresses">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 7-8 13-8 13s-8-6-8-13a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Addresses
+        </button></li>
+        <li><button class="nav-item" data-section="notifications">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          Notifications
+        </button></li>
+        <li><button class="nav-item" data-section="billing">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          Payment &amp; billing
+        </button></li>
+        <li><button class="nav-item" data-section="privacy">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Privacy &amp; data
+        </button></li>
+        <li><button class="nav-item" data-section="connections">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"/></svg>
+          Connected services
+        </button></li>
+        <li><button class="nav-item" data-section="account">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Account &amp; security
+        </button></li>
+      </ul>
+    </nav>
+
+    <!-- Right column: sections -->
+    <div>
+
+      <!-- PROFILE section (active by default) -->
+      <section class="section active" id="section-profile">
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Personal details</h2>
+            <div class="desc">How we address you and where we send updates.</div>
+          </div>
+          <div class="card-body">
+
+            <div class="field">
+              <label class="field-label">Profile photo</label>
+              <div class="avatar-editor">
+                <div class="avatar-large">JW</div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button class="btn-secondary">Upload photo</button>
+                  <button class="btn-link">Remove</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label class="field-label">First name</label>
+                <input type="text" value="Jenny">
+              </div>
+              <div class="field">
+                <label class="field-label">Last name</label>
+                <input type="text" value="Whitfield">
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label">Email address</label>
+              <input type="email" value="jenny@whitfield.uk">
+              <div class="field-help">Used for sign-in and important account notifications.</div>
+            </div>
+
+            <div class="field">
+              <label class="field-label">Phone number</label>
+              <input type="tel" value="+44 7700 900 432">
+              <div class="field-help">For SMS notifications and contractor coordination once awarded.</div>
+            </div>
+
+          </div>
+          <div class="card-footer">
+            <span class="footer-note">Auto-saved.</span>
+            <button class="btn-primary">Save changes</button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ADDRESSES section -->
+      <section class="section" id="section-addresses">
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Saved addresses</h2>
+            <div class="desc">Your home address and any properties where you've run projects. Used for contractor matching and delivery.</div>
+          </div>
+          <div class="card-body">
+
+            <div class="address-row">
+              <div class="address-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </div>
+              <div class="address-info">
+                <div class="label">Home <span class="badge-default">Default</span></div>
+                <div class="full">14 Riverside Avenue, Caversham, Reading, RG4 7XR</div>
+                <div class="meta">Used for 4 projects · Added 12 January 2024</div>
+              </div>
+              <div class="address-actions">
+                <button class="icon-action" aria-label="Edit">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                </button>
+                <button class="icon-action" aria-label="Delete">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="address-row">
+              <div class="address-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+              </div>
+              <div class="address-info">
+                <div class="label">Buy-to-let — Tilehurst</div>
+                <div class="full">42 Park Lane, Tilehurst, Reading, RG31 5LA</div>
+                <div class="meta">Used for 1 project · Added 8 March 2025</div>
+              </div>
+              <div class="address-actions">
+                <button class="icon-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+                <button class="icon-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+              </div>
+            </div>
+
+          </div>
+          <div class="card-footer">
+            <span class="footer-note">Address history is kept for past projects.</span>
+            <button class="btn-primary">+ Add address</button>
+          </div>
+        </div>
+
+        <div class="privacy-strip">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2.5" style="flex-shrink: 0; margin-top: 2px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <div class="text"><strong>Addresses stay private.</strong> Contractors only see the postcode area when quoting. Full address is shared only with the contractor you award the job to.</div>
+        </div>
+
+      </section>
+
+      <!-- NOTIFICATIONS section -->
+      <section class="section" id="section-notifications">
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Notifications</h2>
+            <div class="desc">Pick how you want to hear about each kind of update. We default to email for everything important.</div>
+          </div>
+          <div class="card-body">
+            <div class="notif-table">
+              <div class="notif-row head">
+                <div class="col-head">Update type</div>
+                <div class="col-head">Email</div>
+                <div class="col-head">SMS</div>
+                <div class="col-head">Push</div>
+              </div>
+
+              <div class="notif-row">
+                <div class="notif-info">
+                  <div class="label">Quote received</div>
+                  <div class="desc">When a contractor responds to one of your enquiries.</div>
+                </div>
+                <div class="toggle on" tabindex="0"></div>
+                <div class="toggle on" tabindex="0"></div>
+                <div class="toggle on" tabindex="0"></div>
+              </div>
+
+              <div class="notif-row">
+                <div class="notif-info">
+                  <div class="label">Measurement ready</div>
+                  <div class="desc">When drawing processing finishes and quantities are extracted.</div>
+                </div>
+                <div class="toggle on" tabindex="0"></div>
+                <div class="toggle" tabindex="0"></div>
+                <div class="toggle on" tabindex="0"></div>
+              </div>
+
+              <div class="notif-row">
+                <div class="notif-info">
+                  <div class="label">Price drops</div>
+                  <div class="desc">When products in an active project drop in price at our suppliers.</div>
+                </div>
+                <div class="toggle on" tabindex="0"></div>
+                <div class="toggle" tabindex="0"></div>
+                <div class="toggle" tabindex="0"></div>
+              </div>
+
+              <div class="notif-row">
+                <div class="notif-info">
+                  <div class="label">Project milestones</div>
+                  <div class="desc">Awarded contracts, work starts, payment due, completion.</div>
+                </div>
+                <div class="toggle on" tabindex="0"></div>
+                <div class="toggle on" tabindex="0"></div>
+                <div class="toggle on" tabindex="0"></div>
+              </div>
+
+              <div class="notif-row">
+                <div class="notif-info">
+                  <div class="label">Account &amp; security</div>
+                  <div class="desc">Sign-ins from new devices, password changes. Always on for email.</div>
+                </div>
+                <div class="toggle on disabled" tabindex="-1"></div>
+                <div class="toggle" tabindex="0"></div>
+                <div class="toggle on" tabindex="0"></div>
+              </div>
+
+              <div class="notif-row">
+                <div class="notif-info">
+                  <div class="label">Tips &amp; product news</div>
+                  <div class="desc">Best practices, new features, occasional Build-Budget news. Monthly at most.</div>
+                </div>
+                <div class="toggle" tabindex="0"></div>
+                <div class="toggle" tabindex="0"></div>
+                <div class="toggle" tabindex="0"></div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- PAYMENT section -->
+      <section class="section" id="section-billing">
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Payment methods</h2>
+            <div class="desc">Used for materials orders and contractor deposits via Build-Budget protected payments.</div>
+          </div>
+          <div class="card-body">
+
+            <div class="payment-row">
+              <div class="card-mark visa">VISA</div>
+              <div class="payment-info">
+                <div class="label">Visa ending 6411 <span class="badge-default">Default</span></div>
+                <div class="meta">Expires 09/27 · J. Whitfield</div>
+              </div>
+              <button class="btn-link">Edit</button>
+            </div>
+
+            <div class="payment-row">
+              <div class="card-mark mc">MC</div>
+              <div class="payment-info">
+                <div class="label">Mastercard ending 4592</div>
+                <div class="meta">Expires 04/26 · J. Whitfield</div>
+              </div>
+              <button class="btn-link">Edit</button>
+            </div>
+
+          </div>
+          <div class="card-footer">
+            <span class="footer-note">Cards are tokenised — Build-Budget never stores raw card numbers.</span>
+            <button class="btn-primary">+ Add card</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Invoice history</h2>
+            <div class="desc">Itemised receipts for materials, deposits, and platform fees.</div>
+          </div>
+          <div class="card-body">
+            <div class="payment-row">
+              <div class="address-icon" style="background: #f5f5f4; color: #44403c;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="payment-info">
+                <div class="label">Bathroom Refit · Materials order</div>
+                <div class="meta">28 April 2026 · £5,840.00 · Paid</div>
+              </div>
+              <button class="btn-secondary">Download</button>
+            </div>
+            <div class="payment-row">
+              <div class="address-icon" style="background: #f5f5f4; color: #44403c;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="payment-info">
+                <div class="label">Bathroom Refit · Contractor deposit</div>
+                <div class="meta">14 April 2026 · £2,125.00 · Paid</div>
+              </div>
+              <button class="btn-secondary">Download</button>
+            </div>
+            <div class="payment-row">
+              <div class="address-icon" style="background: #f5f5f4; color: #44403c;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="payment-info">
+                <div class="label">Garage Conversion · Final invoice</div>
+                <div class="meta">18 March 2026 · £4,300.00 · Paid</div>
+              </div>
+              <button class="btn-secondary">Download</button>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="footer-note">Showing 3 of 12 invoices.</span>
+            <button class="btn-secondary">View all</button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- PRIVACY section -->
+      <section class="section" id="section-privacy">
+
+        <div class="card">
+          <div class="card-header">
+            <h2>What we share with contractors</h2>
+            <div class="desc">Plain English summary. Toggle anything off if you'd rather not share.</div>
+          </div>
+          <div class="card-body">
+
+            <div class="notif-row" style="grid-template-columns: 1fr 50px; padding-top: 0;">
+              <div class="notif-info">
+                <div class="label">Postcode area</div>
+                <div class="desc">First half of postcode (e.g. RG4) so contractors can quote on travel time.</div>
+              </div>
+              <div class="toggle on disabled"></div>
+            </div>
+
+            <div class="notif-row" style="grid-template-columns: 1fr 50px;">
+              <div class="notif-info">
+                <div class="label">Project budget range</div>
+                <div class="desc">Helps contractors decide if the job is a fit. Hidden from view if off.</div>
+              </div>
+              <div class="toggle on"></div>
+            </div>
+
+            <div class="notif-row" style="grid-template-columns: 1fr 50px;">
+              <div class="notif-info">
+                <div class="label">Your first name</div>
+                <div class="desc">Builders prefer addressing a person. Surname only shared on award.</div>
+              </div>
+              <div class="toggle on"></div>
+            </div>
+
+            <div class="notif-row" style="grid-template-columns: 1fr 50px;">
+              <div class="notif-info">
+                <div class="label">Past project ratings</div>
+                <div class="desc">Whether you've had projects on Build-Budget before. Establishes trust.</div>
+              </div>
+              <div class="toggle"></div>
+            </div>
+
+            <div class="privacy-strip">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2.5" style="flex-shrink: 0; margin-top: 2px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <div class="text"><strong>Full address, drawings and contact details</strong> are shared only with the contractor you award the job to. Always.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Your data</h2>
+            <div class="desc">Download or delete everything Build-Budget holds about you and your projects.</div>
+          </div>
+          <div class="card-body">
+            <div class="payment-row">
+              <div class="address-icon" style="background: #f0fdf4; color: #047857;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </div>
+              <div class="payment-info">
+                <div class="label">Export your data</div>
+                <div class="meta">All projects, drawings, quotes, messages — as a ZIP. Usually ready within 24 hours.</div>
+              </div>
+              <button class="btn-secondary">Request export</button>
+            </div>
+            <div class="payment-row">
+              <div class="address-icon" style="background: #faf5ff; color: #7c3aed;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <div class="payment-info">
+                <div class="label">What we collect &amp; why</div>
+                <div class="meta">Plain-English summary of every data point we hold and how it's used.</div>
+              </div>
+              <button class="btn-secondary">View summary</button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- CONNECTIONS section -->
+      <section class="section" id="section-connections">
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Supplier accounts</h2>
+            <div class="desc">Optional — connect your own merchant trade accounts to use your discounts on top of Build-Budget's negotiated rates.</div>
+          </div>
+          <div class="card-body">
+
+            <div class="connection-row">
+              <div class="conn-logo" style="background: #d92231;">TP</div>
+              <div class="conn-info">
+                <div class="label">Travis Perkins</div>
+                <div class="meta"><span class="meta-dot"></span>Connected · Trade account TP-XXXX-3104</div>
+              </div>
+              <button class="btn-link">Disconnect</button>
+            </div>
+
+            <div class="connection-row">
+              <div class="conn-logo" style="background: #1c4a99;">JW</div>
+              <div class="conn-info">
+                <div class="label">Jewson</div>
+                <div class="meta"><span class="meta-dot off"></span>Not connected</div>
+              </div>
+              <button class="btn-secondary">Connect</button>
+            </div>
+
+            <div class="connection-row">
+              <div class="conn-logo" style="background: #00853e;">SE</div>
+              <div class="conn-info">
+                <div class="label">Selco</div>
+                <div class="meta"><span class="meta-dot off"></span>Not connected</div>
+              </div>
+              <button class="btn-secondary">Connect</button>
+            </div>
+
+            <div class="connection-row">
+              <div class="conn-logo" style="background: #003978;">HD</div>
+              <div class="conn-info">
+                <div class="label">Howdens</div>
+                <div class="meta"><span class="meta-dot off"></span>Not connected</div>
+              </div>
+              <button class="btn-secondary">Connect</button>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Calendar &amp; mail</h2>
+            <div class="desc">Sync project milestones to your calendar and let contractors propose times that fit your schedule.</div>
+          </div>
+          <div class="card-body">
+
+            <div class="connection-row">
+              <div class="conn-logo" style="background: #4285f4;">G</div>
+              <div class="conn-info">
+                <div class="label">Google Calendar</div>
+                <div class="meta"><span class="meta-dot"></span>Connected · jenny@whitfield.uk</div>
+              </div>
+              <button class="btn-link">Disconnect</button>
+            </div>
+
+            <div class="connection-row">
+              <div class="conn-logo" style="background: #0078d4;">M</div>
+              <div class="conn-info">
+                <div class="label">Microsoft Outlook</div>
+                <div class="meta"><span class="meta-dot off"></span>Not connected</div>
+              </div>
+              <button class="btn-secondary">Connect</button>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ACCOUNT section -->
+      <section class="section" id="section-account">
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Password</h2>
+            <div class="desc">Last changed 3 months ago.</div>
+          </div>
+          <div class="card-body">
+            <div class="field">
+              <label class="field-label">Current password</label>
+              <input type="password" value="••••••••••••">
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label class="field-label">New password</label>
+                <input type="password" placeholder="Enter new password">
+              </div>
+              <div class="field">
+                <label class="field-label">Confirm new</label>
+                <input type="password" placeholder="Re-enter new password">
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="footer-note">Use 12+ characters with a mix of letters and numbers.</span>
+            <button class="btn-primary">Update password</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Two-factor authentication</h2>
+            <div class="desc">Adds an extra step at sign-in to protect your projects and payment details.</div>
+          </div>
+          <div class="card-body">
+            <div class="payment-row">
+              <div class="address-icon" style="background: #f0fdf4; color: #047857;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+              </div>
+              <div class="payment-info">
+                <div class="label">Authenticator app <span class="badge-default" style="background: #047857;">Active</span></div>
+                <div class="meta">Set up 12 January 2024 · Last used today</div>
+              </div>
+              <button class="btn-link">Manage</button>
+            </div>
+            <div class="payment-row">
+              <div class="address-icon" style="background: #f5f5f4; color: #44403c;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              </div>
+              <div class="payment-info">
+                <div class="label">SMS backup</div>
+                <div class="meta">Receive codes by text if you lose access to your authenticator</div>
+              </div>
+              <button class="btn-secondary">Set up</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Active sessions</h2>
+            <div class="desc">Devices and browsers currently signed in. Sign out anything that wasn't you.</div>
+          </div>
+          <div class="card-body">
+            <div class="payment-row">
+              <div class="address-icon" style="background: #f0fdf4; color: #047857;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+              <div class="payment-info">
+                <div class="label">MacBook Pro · Safari <span class="badge-default" style="background: #047857;">This device</span></div>
+                <div class="meta">Caversham, UK · Active now</div>
+              </div>
+              <button class="btn-link" disabled style="opacity: 0.5; cursor: default;">Current</button>
+            </div>
+            <div class="payment-row">
+              <div class="address-icon" style="background: #f5f5f4; color: #44403c;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              </div>
+              <div class="payment-info">
+                <div class="label">iPhone 16 · Build-Budget app</div>
+                <div class="meta">Caversham, UK · Active 2 hours ago</div>
+              </div>
+              <button class="btn-link">Sign out</button>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="footer-note">Sign out everywhere if you suspect unauthorised access.</span>
+            <button class="btn-secondary">Sign out all other sessions</button>
+          </div>
+        </div>
+
+        <!-- Danger zone -->
+        <div class="danger-zone">
+          <h2>Danger zone</h2>
+          <div class="desc">Permanent actions. Read carefully — these can't be undone.</div>
+
+          <div class="danger-row">
+            <div>
+              <div class="label">Pause account</div>
+              <div class="meta">Hide your projects from contractors and pause notifications. Reactivate anytime.</div>
+            </div>
+            <button class="btn-danger" style="border-color: #d97706; color: #92400e;">Pause</button>
+          </div>
+
+          <div class="danger-row">
+            <div>
+              <div class="label">Delete account permanently</div>
+              <div class="meta">Removes all projects, drawings, messages, and payment data within 30 days. Active projects must be completed or transferred first.</div>
+            </div>
+            <button class="btn-danger">Delete account</button>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- DEMO NAVIGATION -->
+<div id="bb-demo-nav">
+  <details>
+    <summary>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Demo · jump to
+    </summary>
+    <div class="menu" style="padding: 8px; max-width: 280px; max-height: 70vh; overflow-y: auto;">
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">Main pages</div>
+      <a href="index.html" class="home" style="display: block; padding: 6px 10px; color: #fcd34d; font-size: 12px; border-radius: 6px; text-decoration: none;">⌂ Demo home</a>
+      <a href="homeowner-dashboard.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Dashboard (homeowner)</a>
+      <a href="my-projects.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">My Projects</a>
+      <a href="settings.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Settings (homeowner)</a>
+      <a href="ai-designer-capture.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">AI Designer · capture</a>
+      <a href="get-inspired.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">AI Designer · gallery</a>
+      <a href="ai-designer-result.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">AI Designer · result</a>
+      <a href="browse-products.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Browse Products</a>
+      <a href="find-a-pro.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Find a Pro</a>
+      <a href="project-workspace.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Project Workspace</a>
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">Contractor</div>
+      <a href="contractor-dashboard.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Dashboard (contractor)</a>
+      <a href="contractor-portal.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Portal (enquiry view)</a>
+      <a href="quote-builder.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Quote builder</a>
+      <a href="contractor-settings.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Settings (contractor)</a>
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">New project flow</div>
+      <a href="new-project-details.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">1 · Details</a>
+      <a href="new-project-drawings.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">2 · Drawings</a>
+      <a href="new-project-review.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">3 · Review</a>
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">Project journey</div>
+      <a href="measurement-review.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Measurement review</a>
+      <a href="sketch-upload.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Upload sketch</a>
+      <a href="project-vault.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Project vault</a>
+      <a href="quantity-summary.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Quantity summary</a>
+      <a href="send-enquiry.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Send enquiry</a>
+      <a href="budget-pricing.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Budget pricing</a>
+      <a href="material-selection.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Material selection</a>
+      <a href="homeowner-comparison.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Compare quotes</a>
+    </div>
+  </details>
+</div>
+
+<script>
+  // Section switching
+  const navItems = document.querySelectorAll('.nav-item[data-section]');
+  const sections = document.querySelectorAll('.section');
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      navItems.forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+      const target = item.dataset.section;
+      sections.forEach(s => s.classList.toggle('active', s.id === 'section-' + target));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Toggle switches (visual only)
+  document.querySelectorAll('.toggle:not(.disabled)').forEach(toggle => {
+    toggle.addEventListener('click', () => {
+      toggle.classList.toggle('on');
+    });
+  });
+</script>
+
+
+<script>
+  // Build-Budget PWA — register service worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('sw.js').then(function(reg) {
+        // Listen for updates
+        reg.addEventListener('updatefound', function() {
+          var newWorker = reg.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', function() {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('[PWA] Update available — reload to apply.');
+              }
+            });
+          }
+        });
+      }).catch(function(err) {
+        console.warn('[PWA] Service worker registration failed:', err);
+      });
+    });
+  }
+  
+  // iOS install hint — show once for users on iOS who haven't installed
+  (function() {
+    try {
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      var isInStandalone = window.navigator.standalone === true ||
+                           window.matchMedia('(display-mode: standalone)').matches;
+      var dismissed = localStorage.getItem('bb-ios-install-dismissed');
+      if (isIOS && !isInStandalone && !dismissed) {
+        setTimeout(function() {
+          var hint = document.createElement('div');
+          hint.id = 'bb-ios-install-hint';
+          hint.style.cssText = 'position:fixed;bottom:20px;left:16px;right:16px;background:#1c1917;color:white;padding:14px 16px;border-radius:14px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;line-height:1.5;box-shadow:0 12px 32px -8px rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;gap:12px;';
+          hint.innerHTML = '<div style="flex:1;">Install Build-Budget — tap <span style="font-size:16px;">⎙</span> then <b>Add to Home Screen</b>.</div><button style="background:transparent;border:none;color:#fde68a;font-size:18px;cursor:pointer;padding:4px 8px;">✕</button>';
+          hint.querySelector('button').onclick = function() {
+            hint.remove();
+            try { localStorage.setItem('bb-ios-install-dismissed', '1'); } catch(e) {}
+          };
+          document.body.appendChild(hint);
+        }, 3000);
+      }
+    } catch(e) { /* localStorage might be unavailable in some in-app browsers */ }
+  })();
+</script>
+</body>
+</html>

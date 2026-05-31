@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1c1917">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Build-Budget">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Build-Budget">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+<title>Build-Budget — Find a Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Fraunces', Georgia, serif; background: #faf7f2; min-height: 100vh; }
+  .font-sans-ui { font-family: 'Manrope', sans-serif; }
+
+  @keyframes pulse-soft { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.9; } }
+  .pulse-dot { animation: pulse-soft 2s infinite; }
+
+  .trade-card {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+  .trade-card:hover {
+    transform: translateY(-3px);
+    border-color: #1c1917 !important;
+    box-shadow: 0 16px 32px -10px rgba(0,0,0,0.1);
+  }
+  .trade-card:hover .cat-icon-wrap {
+    background: #1c1917 !important;
+  }
+  .trade-card:hover .cat-icon-wrap svg { stroke: white; }
+
+  .pro-card {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+  .pro-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 32px -10px rgba(0,0,0,0.12);
+  }
+
+  .filter-pill {
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .filter-pill:hover { border-color: #1c1917 !important; }
+  .filter-pill.active {
+    background: #1c1917 !important;
+    color: white !important;
+    border-color: #1c1917 !important;
+  }
+
+  .search-wrap input:focus {
+    outline: none;
+    border-color: #1c1917 !important;
+    box-shadow: 0 0 0 4px rgba(28,25,23,0.08);
+  }
+
+  .tab-btn { transition: all 0.2s; }
+  .tab-btn.active {
+    background: #1c1917;
+    color: white;
+  }
+
+  @media (max-width: 1100px) {
+    .trade-grid { grid-template-columns: repeat(3, 1fr) !important; }
+    .pro-grid { grid-template-columns: 1fr 1fr !important; }
+  }
+  @media (max-width: 760px) {
+    .trade-grid { grid-template-columns: 1fr 1fr !important; }
+    .pro-grid { grid-template-columns: 1fr !important; }
+    .header-row { flex-direction: column !important; align-items: start !important; gap: 16px !important; }
+    .filter-row { flex-wrap: wrap !important; }
+  }
+  @media (max-width: 480px) {
+    .trade-grid { grid-template-columns: 1fr !important; }
+  }
+</style>
+
+<style>
+/* ── iPhone mobile scale fix ─────────────────────────────────────────────── */
+@media (max-width: 430px) {
+  /* Containers */
+  [style*="max-width: 1280px"] { padding-left: 14px !important; padding-right: 14px !important; }
+  [style*="padding: 32px 24px"], [style*="padding: 24px 28px"], [style*="padding: 28px"] {
+    padding: 16px 14px !important;
+  }
+  /* Hero headlines — pull back clamp mins */
+  h1 { font-size: 28px !important; line-height: 1.1 !important; }
+  /* Cards */
+  [style*="border-radius: 20px"], [style*="border-radius: 18px"] {
+    border-radius: 14px !important;
+  }
+  /* Top bar */
+  header [style*="padding: 14px 24px"],
+  header [style*="padding: 12px 24px"] {
+    padding: 10px 14px !important;
+  }
+  /* Main page padding */
+  main[style*="padding: 32px 24px"], main[style*="padding: 24px 0"] {
+    padding: 16px 14px 80px !important;
+  }
+  /* Grid gaps */
+  [style*="gap: 32px"] { gap: 16px !important; }
+  [style*="gap: 24px"] { gap: 12px !important; }
+  /* Stat/tile cards in grids */
+  [style*="grid-template-columns: repeat(3"], 
+  [style*="grid-template-columns: repeat(4"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* Table overflow on mobile */
+  table { font-size: 12px !important; }
+  /* Demo nav — keep out of the way */
+  #bb-demo-nav { bottom: 10px !important; right: 10px !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<header style="background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); border-bottom: 1px solid #e7e5e4; position: sticky; top: 0; z-index: 20;">
+  <div style="max-width: 1400px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <button class="font-sans-ui" style="font-size: 13px; color: #78716c; display: flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        Dashboard
+      </button>
+      <div style="height: 20px; width: 1px; background: #e7e5e4;"></div>
+      <div style="font-size: 18px; font-weight: 600; letter-spacing: -0.02em;">Build-Budget</div>
+      <span class="font-sans-ui" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: #44403c; padding: 3px 8px; background: #f5f5f4; border-radius: 999px; font-weight: 600;">Find a Pro</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;" class="font-sans-ui">
+      <button style="background: white; border: 1px solid #e7e5e4; padding: 7px 12px; border-radius: 8px; font-size: 12px; color: #44403c; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 500;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Shortlist <span style="background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 999px; font-size: 10px; font-weight: 700;">2</span>
+      </button>
+      <div style="width: 32px; height: 32px; border-radius: 999px; background: #fde68a; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px;">JW</div>
+    </div>
+  </div>
+</header>
+
+<main style="max-width: 1400px; margin: 0 auto; padding: 32px 24px 96px;">
+
+  <!-- Hero -->
+  <div class="header-row" style="display: flex; align-items: end; justify-content: space-between; margin-bottom: 28px; gap: 24px;">
+    <div style="flex: 1;">
+      <div class="font-sans-ui" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: #78716c; margin-bottom: 12px;">Vetted directory</div>
+      <h1 style="font-size: clamp(26px, 5vw, 56px); font-weight: 500; line-height: 0.95; letter-spacing: -0.02em; color: #1c1917; margin-bottom: 12px;">
+        Find your <span style="font-style: italic; color: #b45309;">team</span>.
+      </h1>
+      <p class="font-sans-ui" style="font-size: 17px; color: #57534e; max-width: 720px; line-height: 1.5;">
+        Every trade and consultant on Build-Budget is vetted — references, insurance, certifications, and previous work all checked. Filter by trade, location, and current availability.
+      </p>
+    </div>
+  </div>
+
+  <!-- Postcode prompt + main search -->
+  <div style="background: white; border: 1px solid #e7e5e4; border-radius: 18px; padding: 20px 22px; margin-bottom: 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;" class="font-sans-ui">
+    <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+      <div style="width: 36px; height: 36px; border-radius: 10px; background: #fef3c7; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2"><path d="M20 10c0 7-8 13-8 13s-8-6-8-13a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <div>
+        <div style="font-size: 11px; color: #78716c; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; margin-bottom: 2px;">Where's the work?</div>
+        <div style="font-size: 13px; color: #57534e;">We'll show pros covering your area first.</div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 10px; flex: 1; min-width: 240px; align-items: center;">
+      <div style="position: relative; flex: 1;">
+        <input type="text" placeholder="Enter postcode" value="RG4 7XR" class="font-sans-ui" style="width: 100%; padding: 12px 14px; font-size: 14px; font-family: 'Manrope', sans-serif; border: 1.5px solid #e7e5e4; border-radius: 10px; background: white; text-transform: uppercase; font-weight: 600;">
+      </div>
+      <select class="font-sans-ui" style="padding: 12px 14px; font-size: 14px; font-family: 'Manrope', sans-serif; border: 1.5px solid #e7e5e4; border-radius: 10px; background: white; color: #44403c; cursor: pointer;">
+        <option>Within 10 mi</option>
+        <option>Within 25 mi</option>
+        <option>Within 50 mi</option>
+        <option>Nationwide</option>
+      </select>
+      <button style="background: #1c1917; color: white; border: none; padding: 12px 22px; border-radius: 10px; font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; flex-shrink: 0;">Apply</button>
+    </div>
+  </div>
+
+  <!-- Search bar -->
+  <div class="search-wrap" style="position: relative; margin-bottom: 16px;">
+    <svg style="position: absolute; left: 24px; top: 50%; transform: translateY(-50%); color: #78716c; pointer-events: none;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" placeholder="Search by name, trade, or specialty — e.g. extension specialist, NICEIC electrician…" class="font-sans-ui" style="width: 100%; padding: 22px 60px 22px 60px; font-size: 16px; font-family: 'Manrope', sans-serif; border: 2px solid #e7e5e4; border-radius: 18px; background: white; transition: all 0.2s; box-shadow: 0 4px 12px -4px rgba(0,0,0,0.04);">
+    <button style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #1c1917; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer;">Search</button>
+  </div>
+
+  <!-- Filter chips -->
+  <div class="filter-row font-sans-ui" style="display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; align-items: center;">
+    <span style="font-size: 11px; color: #78716c; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; margin-right: 4px;">Filter</span>
+    <button class="filter-pill active" style="background: white; border: 1.5px solid #e7e5e4; padding: 6px 12px; border-radius: 999px; font-size: 12px; color: #44403c; cursor: pointer; font-weight: 500;">Available now</button>
+    <button class="filter-pill" style="background: white; border: 1.5px solid #e7e5e4; padding: 6px 12px; border-radius: 999px; font-size: 12px; color: #44403c; cursor: pointer; font-weight: 500;">4.5★ +</button>
+    <button class="filter-pill" style="background: white; border: 1.5px solid #e7e5e4; padding: 6px 12px; border-radius: 999px; font-size: 12px; color: #44403c; cursor: pointer; font-weight: 500;">Insured</button>
+    <button class="filter-pill" style="background: white; border: 1.5px solid #e7e5e4; padding: 6px 12px; border-radius: 999px; font-size: 12px; color: #44403c; cursor: pointer; font-weight: 500;">10+ years trading</button>
+    <button class="filter-pill" style="background: white; border: 1.5px solid #e7e5e4; padding: 6px 12px; border-radius: 999px; font-size: 12px; color: #44403c; cursor: pointer; font-weight: 500;">Eco / Green</button>
+    <button class="filter-pill" style="background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%); border: 1.5px solid #fcd34d; padding: 6px 12px; border-radius: 999px; font-size: 12px; color: #92400e; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.7 5.3L19 9l-5.3 1.7L12 16l-1.7-5.3L5 9l5.3-1.7z"/></svg>
+      Build-Budget partners
+    </button>
+  </div>
+
+  <!-- Tabs: Trades vs Architects/Engineers -->
+  <div style="margin-bottom: 24px; display: flex; gap: 6px; padding: 5px; background: white; border: 1px solid #e7e5e4; border-radius: 14px; max-width: fit-content;" class="font-sans-ui">
+    <button class="tab-btn active" style="border: none; padding: 11px 22px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      Trades
+      <span style="background: rgba(255,255,255,0.2); color: inherit; padding: 1px 7px; border-radius: 999px; font-size: 10px; font-weight: 700; margin-left: 2px;">2,140</span>
+    </button>
+    <button class="tab-btn" style="background: transparent; color: #44403c; border: none; padding: 11px 22px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><polyline points="9 21 12 17 15 21"/></svg>
+      Architects &amp; Engineers
+      <span style="background: #f5f5f4; color: #44403c; padding: 1px 7px; border-radius: 999px; font-size: 10px; font-weight: 700; margin-left: 2px;">340</span>
+    </button>
+  </div>
+
+  <!-- Trades category grid -->
+  <div style="margin-bottom: 48px;">
+    <div style="display: flex; align-items: end; justify-content: space-between; margin-bottom: 18px;">
+      <div>
+        <div class="font-sans-ui" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: #78716c; margin-bottom: 4px; font-weight: 600;">Browse by</div>
+        <h2 style="font-size: 26px; font-weight: 500; color: #1c1917; letter-spacing: -0.02em;">Trade</h2>
+      </div>
+      <div class="font-sans-ui" style="font-size: 12px; color: #78716c;">Showing pros within 25 miles of RG4 7XR</div>
+    </div>
+
+    <div class="trade-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
+
+      <!-- General Builder -->
+      <button class="trade-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 16px; padding: 20px; text-align: left; cursor: pointer;">
+        <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 14px;">
+          <div class="cat-icon-wrap" style="width: 42px; height: 42px; border-radius: 11px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1c1917" stroke-width="1.6"><path d="M3 21 L3 9 L12 4 L21 9 L21 21"/><rect x="9" y="13" width="6" height="8"/><line x1="12" y1="13" x2="12" y2="21"/></svg>
+          </div>
+          <span class="font-sans-ui" style="font-size: 10px; padding: 2px 7px; background: #f5f5f4; color: #78716c; border-radius: 999px; font-weight: 600;">142 nearby</span>
+        </div>
+        <h3 style="font-size: 17px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; margin-bottom: 4px;">General Builder</h3>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0 0 10px;">Extensions, refurbs, structural alterations</p>
+        <div class="font-sans-ui" style="font-size: 11px; color: #047857; font-weight: 600;">★ 4.8 avg · ~8 wk lead time</div>
+      </button>
+
+      <!-- Electrician -->
+      <button class="trade-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 16px; padding: 20px; text-align: left; cursor: pointer;">
+        <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 14px;">
+          <div class="cat-icon-wrap" style="width: 42px; height: 42px; border-radius: 11px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1c1917" stroke-width="1.6"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>
+          </div>
+          <span class="font-sans-ui" style="font-size: 10px; padding: 2px 7px; background: #f5f5f4; color: #78716c; border-radius: 999px; font-weight: 600;">218 nearby</span>
+        </div>
+        <h3 style="font-size: 17px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; margin-bottom: 4px;">Electrician</h3>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0 0 10px;">NICEIC certified. First &amp; second fix, EICR.</p>
+        <div class="font-sans-ui" style="font-size: 11px; color: #047857; font-weight: 600;">★ 4.7 avg · 2 wk lead</div>
+      </button>
+
+      <!-- Plumber & Heating -->
+      <button class="trade-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 16px; padding: 20px; text-align: left; cursor: pointer;">
+        <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 14px;">
+          <div class="cat-icon-wrap" style="width: 42px; height: 42px; border-radius: 11px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1c1917" stroke-width="1.6"><path d="M3 12 L7 12 L7 4 L11 4 L11 12 L17 12 L17 6"/><circle cx="20" cy="6" r="2"/><path d="M3 12 L3 20 L21 20 L21 16"/></svg>
+          </div>
+          <span class="font-sans-ui" style="font-size: 10px; padding: 2px 7px; background: #f5f5f4; color: #78716c; border-radius: 999px; font-weight: 600;">186 nearby</span>
+        </div>
+        <h3 style="font-size: 17px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; margin-bottom: 4px;">Plumber &amp; Heating</h3>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0 0 10px;">Gas Safe registered. Boilers, bathrooms.</p>
+        <div class="font-sans-ui" style="font-size: 11px; color: #047857; font-weight: 600;">★ 4.7 avg · 1–3 wk lead</div>
+      </button>
+
+      <!-- Carpenter / Joiner -->
+      <button class="trade-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 16px; padding: 20px; text-align: left; cursor: pointer;">
+        <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 14px;">
+          <div class="cat-icon-wrap" style="width: 42px; height: 42px; border-radius: 11px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1c1917" stroke-width="1.6"><path d="M2 16 L22 8 M5 17 L8 18 L7 21 M19 7 L22 8 L21 11"/><rect x="6" y="14" width="3" height="3" transform="rotate(-20 7.5 15.5)"/></svg>
+          </div>
+          <span class="font-sans-ui" style="font-size: 10px; padding: 2px 7px; background: #f5f5f4; color: #78716c; border-radius: 999px; font-weight: 600;">164 nearby</span>
+        </div>
+        <h3 style="font-size: 17px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; margin-bottom: 4px;">Carpenter &amp; Joiner</h3>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0 0 10px;">Doors, floors, stairs, bespoke joinery.</p>
+        <div class="font-sans-ui" style="font-size: 11px; color: #047857; font-weight: 600;">★ 4.8 avg · 2 wk lead</div>
+      </button>
+
+      <!-- Roofer -->
+      <button class="trade-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 16px; padding: 20px; text-align: left; cursor: pointer;">
+        <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 14px;">
+          <div class="cat-icon-wrap" style="width: 42px; height: 42px; border-radius: 11px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1c1917" stroke-width="1.6"><path d="M2 14 L12 4 L22 14"/><path d="M5 12 L5 21 L19 21 L19 12"/></svg>
+          </div>
+          <span class="font-sans-ui" style="font-size: 10px; padding: 2px 7px; background: #f5f5f4; color: #78716c; border-radius: 999px; font-weight: 600;">98 nearby</span>
+        </div>
+        <h3 style="font-size: 17px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; margin-bottom: 4px;">Roofer</h3>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0 0 10px;">Pitched, flat, leadwork, repairs.</p>
+        <div class="font-sans-ui" style="font-size: 11px; color: #047857; font-weight: 600;">★ 4.6 avg · 4 wk lead</div>
+      </button>
+
+      <!-- Plasterer -->
+      <button class="trade-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 16px; padding: 20px; text-align: left; cursor: pointer;">
+        <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 14px;">
+          <div class="cat-icon-wrap" style="width: 42px; height: 42px; border-radius: 11px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1c1917" stroke-width="1.6"><rect x="3" y="6" width="18" height="11" rx="1"/><line x1="9" y1="6" x2="9" y2="17"/><line x1="15" y1="6" x2="15" y2="17"/><line x1="3" y1="11" x2="21" y2="11"/></svg>
+          </div>
+          <span class="font-sans-ui" style="font-size: 10px; padding: 2px 7px; background: #f5f5f4; color: #78716c; border-radius: 999px; font-weight: 600;">112 nearby</span>
+        </div>
+        <h3 style="font-size: 17px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; margin-bottom: 4px;">Plasterer</h3>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0 0 10px;">Skim, render, dot &amp; dab, screed.</p>
+        <div class="font-sans-ui" style="font-size: 11px; color: #047857; font-weight: 600;">★ 4.7 avg · 2 wk lead</div>
+      </button>
+
+      <!-- Tiler -->
+      <button class="trade-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 16px; padding: 20px; text-align: left; cursor: pointer;">
+        <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 14px;">
+          <div class="cat-icon-wrap" style="width: 42px; height: 42px; border-radius: 11px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1c1917" stroke-width="1.6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </div>
+          <span class="font-sans-ui" style="font-size: 10px; padding: 2px 7px; background: #f5f5f4; color: #78716c; border-radius: 999px; font-weight: 600;">86 nearby</span>
+        </div>
+        <h3 style="font-size: 17px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; margin-bottom: 4px;">Tiler</h3>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0 0 10px;">Wall, floor, large format, mosaics.</p>
+        <div class="font-sans-ui" style="font-size: 11px; color: #047857; font-weight: 600;">★ 4.7 avg · 1–2 wk lead</div>
+      </button>
+
+      <!-- Painter & Decorator -->
+      <button class="trade-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 16px; padding: 20px; text-align: left; cursor: pointer;">
+        <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 14px;">
+          <div class="cat-icon-wrap" style="width: 42px; height: 42px; border-radius: 11px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1c1917" stroke-width="1.6"><path d="M19 11H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2v4a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-4h6a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2z"/><path d="M19 11V4a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v7"/></svg>
+          </div>
+          <span class="font-sans-ui" style="font-size: 10px; padding: 2px 7px; background: #f5f5f4; color: #78716c; border-radius: 999px; font-weight: 600;">204 nearby</span>
+        </div>
+        <h3 style="font-size: 17px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; margin-bottom: 4px;">Painter &amp; Decorator</h3>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0 0 10px;">Internal, external, wallpaper.</p>
+        <div class="font-sans-ui" style="font-size: 11px; color: #047857; font-weight: 600;">★ 4.6 avg · 2–3 wk lead</div>
+      </button>
+
+      <!-- Bricklayer -->
+      <button class="trade-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 16px; padding: 20px; text-align: left; cursor: pointer;">
+        <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 14px;">
+          <div class="cat-icon-wrap" style="width: 42px; height: 42px; border-radius: 11px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1c1917" stroke-width="1.6"><rect x="2" y="6" width="9" height="5"/><rect x="13" y="6" width="9" height="5"/><rect x="2" y="13" width="9" height="5"/><rect x="13" y="13" width="9" height="5"/></svg>
+          </div>
+          <span class="font-sans-ui" style="font-size: 10px; padding: 2px 7px; background: #f5f5f4; color: #78716c; border-radius: 999px; font-weight: 600;">76 nearby</span>
+        </div>
+        <h3 style="font-size: 17px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; margin-bottom: 4px;">Bricklayer</h3>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0 0 10px;">Brick &amp; block, garden walls, repointing.</p>
+        <div class="font-sans-ui" style="font-size: 11px; color: #047857; font-weight: 600;">★ 4.8 avg · 3 wk lead</div>
+      </button>
+
+      <!-- Groundworker -->
+      <button class="trade-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 16px; padding: 20px; text-align: left; cursor: pointer;">
+        <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 14px;">
+          <div class="cat-icon-wrap" style="width: 42px; height: 42px; border-radius: 11px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1c1917" stroke-width="1.6"><circle cx="6" cy="17" r="2"/><circle cx="18" cy="17" r="2"/><path d="M2 17h2 M8 17h8 M20 17h2"/><path d="M4 11h11l3 6"/><path d="M4 11V8h7l4 3"/></svg>
+          </div>
+          <span class="font-sans-ui" style="font-size: 10px; padding: 2px 7px; background: #f5f5f4; color: #78716c; border-radius: 999px; font-weight: 600;">54 nearby</span>
+        </div>
+        <h3 style="font-size: 17px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; margin-bottom: 4px;">Groundworker</h3>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0 0 10px;">Foundations, drainage, driveways.</p>
+        <div class="font-sans-ui" style="font-size: 11px; color: #047857; font-weight: 600;">★ 4.7 avg · 4–6 wk lead</div>
+      </button>
+
+      <!-- Landscaper -->
+      <button class="trade-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 16px; padding: 20px; text-align: left; cursor: pointer;">
+        <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 14px;">
+          <div class="cat-icon-wrap" style="width: 42px; height: 42px; border-radius: 11px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1c1917" stroke-width="1.6"><path d="M12 22 L12 12"/><path d="M12 12 Q 6 10 6 4 Q 12 6 12 12"/><path d="M12 12 Q 18 10 18 4 Q 12 6 12 12"/></svg>
+          </div>
+          <span class="font-sans-ui" style="font-size: 10px; padding: 2px 7px; background: #f5f5f4; color: #78716c; border-radius: 999px; font-weight: 600;">92 nearby</span>
+        </div>
+        <h3 style="font-size: 17px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; margin-bottom: 4px;">Landscaper</h3>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0 0 10px;">Paving, fencing, decking, planting.</p>
+        <div class="font-sans-ui" style="font-size: 11px; color: #047857; font-weight: 600;">★ 4.7 avg · 3 wk lead</div>
+      </button>
+
+      <!-- Kitchen Fitter -->
+      <button class="trade-card" style="background: white; border: 2px solid #e7e5e4; border-radius: 16px; padding: 20px; text-align: left; cursor: pointer;">
+        <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 14px;">
+          <div class="cat-icon-wrap" style="width: 42px; height: 42px; border-radius: 11px; background: #f5f5f4; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1c1917" stroke-width="1.6"><rect x="3" y="9" width="18" height="11" rx="1"/><line x1="3" y1="13" x2="21" y2="13"/><line x1="9" y1="9" x2="9" y2="20"/><line x1="15" y1="9" x2="15" y2="20"/><circle cx="12" cy="6" r="2"/></svg>
+          </div>
+          <span class="font-sans-ui" style="font-size: 10px; padding: 2px 7px; background: #f5f5f4; color: #78716c; border-radius: 999px; font-weight: 600;">68 nearby</span>
+        </div>
+        <h3 style="font-size: 17px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; margin-bottom: 4px;">Kitchen Fitter</h3>
+        <p class="font-sans-ui" style="font-size: 12px; color: #78716c; line-height: 1.5; margin: 0 0 10px;">Howdens, Wren, Magnet certified.</p>
+        <div class="font-sans-ui" style="font-size: 11px; color: #047857; font-weight: 600;">★ 4.8 avg · 2 wk lead</div>
+      </button>
+
+    </div>
+
+    <button class="font-sans-ui" style="margin-top: 16px; background: white; border: 1px solid #e7e5e4; padding: 10px 18px; border-radius: 10px; font-size: 13px; color: #44403c; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+      Show all 24 trades
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <!-- Featured local pros -->
+  <div style="margin-bottom: 32px;">
+    <div style="display: flex; align-items: end; justify-content: space-between; margin-bottom: 18px;">
+      <div>
+        <div class="font-sans-ui" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: #78716c; margin-bottom: 4px; font-weight: 600;">Top-rated near you</div>
+        <h2 style="font-size: 26px; font-weight: 500; color: #1c1917; letter-spacing: -0.02em;">Featured pros</h2>
+      </div>
+      <a class="font-sans-ui" href="#" style="font-size: 13px; color: #44403c; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 4px;">All pros <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    </div>
+
+    <div class="pro-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+
+      <!-- Pro 1: Henderson & Sons -->
+      <div class="pro-card" id="card-henderson" style="background: white; border: 2px solid #e7e5e4; border-radius: 18px; padding: 22px; cursor: pointer; position: relative; transition:border-color .2s;">
+        <div style="position: absolute; top: 14px; right: 14px;">
+          <button style="background: white; border: 1px solid #e7e5e4; padding: 6px; border-radius: 8px; cursor: pointer; color: #78716c;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+        </div>
+        <div style="display: flex; gap: 14px; margin-bottom: 16px;">
+          <div style="width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Fraunces', serif; font-weight: 600; font-size: 22px; color: #78350f;">H</div>
+          <div style="flex: 1; min-width: 0;">
+            <h3 style="font-size: 18px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; line-height: 1.2;">Henderson &amp; Sons</h3>
+            <div class="font-sans-ui" style="font-size: 12px; color: #78716c; margin-top: 2px;">General Builder · Caversham · 17 yrs</div>
+          </div>
+        </div>
+
+        <!-- Rating + jobs -->
+        <div class="font-sans-ui" style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
+          <div style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#fbbf24"><polygon points="12 2 15 9 22 9 17 14 19 22 12 18 5 22 7 14 2 9 9 9"/></svg>
+            <span style="font-weight: 700; color: #1c1917;">4.9</span>
+            <span style="color: #78716c;">(47 reviews)</span>
+          </div>
+          <span style="color: #d6d3d1;">·</span>
+          <span style="font-size: 12px; color: #047857; font-weight: 600;">128 jobs done</span>
+        </div>
+
+        <!-- Credentials -->
+        <div class="font-sans-ui" style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 14px;">
+          <span style="font-size: 10px; padding: 3px 8px; background: #dcfce7; color: #047857; border-radius: 999px; font-weight: 600;">FMB Member</span>
+          <span style="font-size: 10px; padding: 3px 8px; background: #dcfce7; color: #047857; border-radius: 999px; font-weight: 600;">£5m Insured</span>
+          <span style="font-size: 10px; padding: 3px 8px; background: #dcfce7; color: #047857; border-radius: 999px; font-weight: 600;">TrustMark</span>
+        </div>
+
+        <!-- Status -->
+        <div class="font-sans-ui" style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; margin-bottom: 14px;">
+          <span class="pulse-dot" style="width: 8px; height: 8px; border-radius: 999px; background: #047857; flex-shrink: 0;"></span>
+          <span style="font-size: 12px; color: #064e3b; font-weight: 600;">Available from June 2026</span>
+        </div>
+
+        <!-- Actions -->
+        <div style="display: flex; gap: 8px;">
+          <button class="font-sans-ui" style="flex: 1; background: #1c1917; color: white; border: none; padding: 10px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer;">View profile</button>
+          <button id="btn-henderson" onclick="togglePro('henderson','Henderson &amp; Sons')" class="font-sans-ui" style="background: white; color: #44403c; border: 1px solid #e7e5e4; padding: 10px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer;">Add to enquiry</button>
+        </div>
+      </div>
+
+      <!-- Pro 2: Riverside Builders -->
+      <div class="pro-card" id="card-riverside" style="background: white; border: 2px solid #fcd34d; border-radius: 18px; padding: 22px; cursor: pointer; position: relative; transition:border-color .2s;">
+        <span class="font-sans-ui" style="position: absolute; top: -10px; left: 22px; background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%); color: white; padding: 3px 10px; border-radius: 999px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">Build-Budget partner</span>
+        <div style="position: absolute; top: 14px; right: 14px;">
+          <button style="background: white; border: 1px solid #e7e5e4; padding: 6px; border-radius: 8px; cursor: pointer; color: #78716c;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+        </div>
+        <div style="display: flex; gap: 14px; margin-bottom: 16px;">
+          <div style="width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Fraunces', serif; font-weight: 600; font-size: 22px; color: #1e3a8a;">R</div>
+          <div style="flex: 1; min-width: 0;">
+            <h3 style="font-size: 18px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; line-height: 1.2;">Riverside Builders</h3>
+            <div class="font-sans-ui" style="font-size: 12px; color: #78716c; margin-top: 2px;">General Builder · Tilehurst · 11 yrs</div>
+          </div>
+        </div>
+
+        <div class="font-sans-ui" style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
+          <div style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#fbbf24"><polygon points="12 2 15 9 22 9 17 14 19 22 12 18 5 22 7 14 2 9 9 9"/></svg>
+            <span style="font-weight: 700; color: #1c1917;">4.7</span>
+            <span style="color: #78716c;">(23 reviews)</span>
+          </div>
+          <span style="color: #d6d3d1;">·</span>
+          <span style="font-size: 12px; color: #047857; font-weight: 600;">68 jobs done</span>
+        </div>
+
+        <div class="font-sans-ui" style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 14px;">
+          <span style="font-size: 10px; padding: 3px 8px; background: #dcfce7; color: #047857; border-radius: 999px; font-weight: 600;">£2m Insured</span>
+          <span style="font-size: 10px; padding: 3px 8px; background: #dcfce7; color: #047857; border-radius: 999px; font-weight: 600;">NICEIC</span>
+          <span style="font-size: 10px; padding: 3px 8px; background: #dcfce7; color: #047857; border-radius: 999px; font-weight: 600;">Gas Safe</span>
+        </div>
+
+        <div class="font-sans-ui" style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; margin-bottom: 14px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2.5" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span style="font-size: 12px; color: #92400e; font-weight: 600;">Available from July 2026</span>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button class="font-sans-ui" style="flex: 1; background: #1c1917; color: white; border: none; padding: 10px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer;">View profile</button>
+          <button id="btn-riverside" onclick="togglePro('riverside','Riverside Builders')" class="font-sans-ui" style="background: white; color: #44403c; border: 1px solid #e7e5e4; padding: 10px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer;">Add to enquiry</button>
+        </div>
+      </div>
+
+      <!-- Pro 3: Thames Valley Construction -->
+      <div class="pro-card" id="card-thames" style="background: white; border: 2px solid #e7e5e4; border-radius: 18px; padding: 22px; cursor: pointer; position: relative; transition:border-color .2s;">
+        <div style="position: absolute; top: 14px; right: 14px;">
+          <button style="background: white; border: 1px solid #e7e5e4; padding: 6px; border-radius: 8px; cursor: pointer; color: #78716c;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+        </div>
+        <div style="display: flex; gap: 14px; margin-bottom: 16px;">
+          <div style="width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, #d6d3d1 0%, #78716c 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Fraunces', serif; font-weight: 600; font-size: 22px; color: white;">T</div>
+          <div style="flex: 1; min-width: 0;">
+            <h3 style="font-size: 18px; font-weight: 500; color: #1c1917; letter-spacing: -0.01em; line-height: 1.2;">Thames Valley Construction</h3>
+            <div class="font-sans-ui" style="font-size: 12px; color: #78716c; margin-top: 2px;">General Builder · Reading · 28 yrs</div>
+          </div>
+        </div>
+
+        <div class="font-sans-ui" style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
+          <div style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#fbbf24"><polygon points="12 2 15 9 22 9 17 14 19 22 12 18 5 22 7 14 2 9 9 9"/></svg>
+            <span style="font-weight: 700; color: #1c1917;">4.8</span>
+            <span style="color: #78716c;">(89 reviews)</span>
+          </div>
+          <span style="color: #d6d3d1;">·</span>
+          <span style="font-size: 12px; color: #047857; font-weight: 600;">312 jobs done</span>
+        </div>
+
+        <div class="font-sans-ui" style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 14px;">
+          <span style="font-size: 10px; padding: 3px 8px; background: #dcfce7; color: #047857; border-radius: 999px; font-weight: 600;">FMB Master</span>
+          <span style="font-size: 10px; padding: 3px 8px; background: #dcfce7; color: #047857; border-radius: 999px; font-weight: 600;">£10m Insured</span>
+          <span style="font-size: 10px; padding: 3px 8px; background: #dcfce7; color: #047857; border-radius: 999px; font-weight: 600;">TrustMark</span>
+          <span style="font-size: 10px; padding: 3px 8px; background: #dcfce7; color: #047857; border-radius: 999px; font-weight: 600;">CHAS</span>
+        </div>
+
+        <div class="font-sans-ui" style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; margin-bottom: 14px;">
+          <span class="pulse-dot" style="width: 8px; height: 8px; border-radius: 999px; background: #047857; flex-shrink: 0;"></span>
+          <span style="font-size: 12px; color: #064e3b; font-weight: 600;">Available from June 2026</span>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button class="font-sans-ui" style="flex: 1; background: #1c1917; color: white; border: none; padding: 10px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer;">View profile</button>
+          <button id="btn-thames" onclick="togglePro('thames','Thames Valley Construction')" class="font-sans-ui" style="background: white; color: #44403c; border: 1px solid #e7e5e4; padding: 10px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer;">Add to enquiry</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Trust strip -->
+  <div style="background: linear-gradient(135deg, #1c1917 0%, #292524 60%, #78350f 100%); border-radius: 20px; padding: 28px 32px; color: white; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: -40px; right: -40px; width: 240px; height: 240px; background: rgba(251,191,36,0.15); border-radius: 999px; filter: blur(60px);"></div>
+    <div style="position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;" class="font-sans-ui">
+      <div>
+        <div style="font-family: 'Fraunces', serif; font-size: clamp(22px, 4vw, 32px); font-weight: 600; letter-spacing: -0.02em; color: #fde68a; line-height: 1;">2,480</div>
+        <div style="font-size: 12px; color: #a8a29e; margin-top: 6px;">Vetted trades and consultants — references, insurance, certifications all checked.</div>
+      </div>
+      <div>
+        <div style="font-family: 'Fraunces', serif; font-size: clamp(22px, 4vw, 32px); font-weight: 600; letter-spacing: -0.02em; color: #fde68a; line-height: 1;">3 quotes</div>
+        <div style="font-size: 12px; color: #a8a29e; margin-top: 6px;">Send one enquiry, get three competitive quotes — no chasing required.</div>
+      </div>
+      <div>
+        <div style="font-family: 'Fraunces', serif; font-size: clamp(22px, 4vw, 32px); font-weight: 600; letter-spacing: -0.02em; color: #fde68a; line-height: 1;">£0</div>
+        <div style="font-size: 12px; color: #a8a29e; margin-top: 6px;">No fee to request quotes. Pay your contractor directly when work begins.</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+
+<!-- DEMO NAVIGATION (clickable demo only) -->
+<div id="bb-demo-nav" style="position: fixed; bottom: 16px; right: 16px; z-index: 1000; font-family: 'Manrope', sans-serif;">
+  <details>
+    <summary>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Demo · jump to
+    </summary>
+    <div class="menu" style="padding: 8px; max-width: 280px; max-height: 70vh; overflow-y: auto;">
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">Main pages</div>
+      <a href="index.html" class="home" style="display: block; padding: 6px 10px; color: #fcd34d; font-size: 12px; border-radius: 6px; text-decoration: none;">⌂ Demo home</a>
+      <a href="homeowner-dashboard.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Dashboard (homeowner)</a>
+      <a href="my-projects.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">My Projects</a>
+      <a href="settings.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Settings (homeowner)</a>
+      <a href="ai-designer-capture.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">AI Designer · capture</a>
+      <a href="get-inspired.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">AI Designer · gallery</a>
+      <a href="ai-designer-result.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">AI Designer · result</a>
+      <a href="browse-products.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Browse Products</a>
+      <a href="find-a-pro.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Find a Pro</a>
+      <a href="project-workspace.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Project Workspace</a>
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">Contractor</div>
+      <a href="contractor-dashboard.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Dashboard (contractor)</a>
+      <a href="contractor-portal.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Portal (enquiry view)</a>
+      <a href="quote-builder.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Quote builder</a>
+      <a href="contractor-settings.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Settings (contractor)</a>
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">New project flow</div>
+      <a href="new-project-details.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">1 · Details</a>
+      <a href="new-project-drawings.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">2 · Drawings</a>
+      <a href="new-project-review.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">3 · Review</a>
+      <div class="menu-label" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #a8a29e; padding: 8px 10px 4px;">Project journey</div>
+      <a href="measurement-review.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Measurement review</a>
+      <a href="sketch-upload.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Upload sketch</a>
+      <a href="project-vault.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Project vault</a>
+      <a href="quantity-summary.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Quantity summary</a>
+      <a href="send-enquiry.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Send enquiry</a>
+      <a href="budget-pricing.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Budget pricing</a>
+      <a href="material-selection.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Material selection</a>
+      <a href="homeowner-comparison.html" style="display: block; padding: 6px 10px; color: white; font-size: 12px; border-radius: 6px; text-decoration: none;">Compare quotes</a>
+    </div>
+  </details>
+</div>
+<!-- /DEMO NAVIGATION -->
+
+
+<script>
+  // Build-Budget PWA — register service worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('sw.js').then(function(reg) {
+        // Listen for updates
+        reg.addEventListener('updatefound', function() {
+          var newWorker = reg.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', function() {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('[PWA] Update available — reload to apply.');
+              }
+            });
+          }
+        });
+      }).catch(function(err) {
+        console.warn('[PWA] Service worker registration failed:', err);
+      });
+    });
+  }
+  
+  // iOS install hint — show once for users on iOS who haven't installed
+  (function() {
+    try {
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      var isInStandalone = window.navigator.standalone === true ||
+                           window.matchMedia('(display-mode: standalone)').matches;
+      var dismissed = localStorage.getItem('bb-ios-install-dismissed');
+      if (isIOS && !isInStandalone && !dismissed) {
+        setTimeout(function() {
+          var hint = document.createElement('div');
+          hint.id = 'bb-ios-install-hint';
+          hint.style.cssText = 'position:fixed;bottom:20px;left:16px;right:16px;background:#1c1917;color:white;padding:14px 16px;border-radius:14px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;line-height:1.5;box-shadow:0 12px 32px -8px rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;gap:12px;';
+          hint.innerHTML = '<div style="flex:1;">Install Build-Budget — tap <span style="font-size:16px;">⎙</span> then <b>Add to Home Screen</b>.</div><button style="background:transparent;border:none;color:#fde68a;font-size:18px;cursor:pointer;padding:4px 8px;">✕</button>';
+          hint.querySelector('button').onclick = function() {
+            hint.remove();
+            try { localStorage.setItem('bb-ios-install-dismissed', '1'); } catch(e) {}
+          };
+          document.body.appendChild(hint);
+        }, 3000);
+      }
+    } catch(e) { /* localStorage might be unavailable in some in-app browsers */ }
+  })();
+</script>
+
+<!-- Sticky enquiry footer -->
+<div id="enquiry-footer" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:#1c1917;padding:14px 24px 20px;box-shadow:0 -8px 24px rgba(0,0,0,.25)">
+  <div style="max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <div>
+      <div style="font-family:'Manrope',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:#a8a29e;margin-bottom:4px">Selected for enquiry</div>
+      <div id="footer-names" style="font-family:'Fraunces',Georgia,serif;font-size:18px;color:white;font-weight:500;letter-spacing:-.01em"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="font-family:'Manrope',sans-serif;font-size:13px;color:#a8a29e"><span id="footer-count">0</span> / 3 selected</div>
+      <button id="send-btn" onclick="goToEnquiry()" style="background:#fbbf24;color:#1c1917;border:none;padding:13px 24px;border-radius:12px;font-family:'Manrope',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .15s" onmouseover="this.style.background='#f59e0b'" onmouseout="this.style.background='#fbbf24'">
+        Send enquiry
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+var selected = {};
+
+function togglePro(id, name) {
+  if (selected[id]) {
+    // Deselect
+    delete selected[id];
+    styleCard(id, false);
+  } else {
+    if (Object.keys(selected).length >= 3) {
+      alert('You can send to a maximum of 3 contractors at once.');
+      return;
+    }
+    selected[id] = name;
+    styleCard(id, true);
+  }
+  updateFooter();
+}
+
+function styleCard(id, on) {
+  var card = document.getElementById('card-' + id);
+  var btn  = document.getElementById('btn-' + id);
+  if (!card || !btn) return;
+  if (on) {
+    card.style.borderColor = '#1c1917';
+    card.style.boxShadow   = '0 0 0 2px #1c1917';
+    btn.style.background   = '#1c1917';
+    btn.style.color        = 'white';
+    btn.style.borderColor  = '#1c1917';
+    btn.textContent        = '✓ Added';
+  } else {
+    card.style.borderColor = id === 'riverside' ? '#fcd34d' : '#e7e5e4';
+    card.style.boxShadow   = 'none';
+    btn.style.background   = 'white';
+    btn.style.color        = '#44403c';
+    btn.style.borderColor  = '#e7e5e4';
+    btn.textContent        = 'Add to enquiry';
+  }
+}
+
+function updateFooter() {
+  var keys = Object.keys(selected);
+  var footer = document.getElementById('enquiry-footer');
+  var names  = document.getElementById('footer-names');
+  var count  = document.getElementById('footer-count');
+  count.textContent = keys.length;
+  if (keys.length === 0) {
+    footer.style.display = 'none';
+  } else {
+    footer.style.display = 'block';
+    names.textContent = keys.map(function(k){ return selected[k]; }).join(' · ');
+  }
+  // Add bottom padding to main so footer doesn't obscure content
+  document.querySelector('main').style.paddingBottom = keys.length > 0 ? '100px' : '';
+}
+
+function goToEnquiry() {
+  if (Object.keys(selected).length === 0) return;
+  window.location.href = 'send-enquiry.html';
+}
+</script>
+
+</body>
+</html>
